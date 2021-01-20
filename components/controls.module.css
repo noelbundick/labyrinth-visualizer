@@ -1,0 +1,209 @@
+.cart {
+  flex-grow: 1;
+  background-color: lightskyblue;
+  overflow: auto;
+  min-height: 0px;
+}
+
+.cartItem {
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
+.cartWelcome {
+  font-size: 36pt;
+  flex-grow: 1;
+  background-color: lightskyblue;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.frame {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.frameUpperPanel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.frameLowerPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.frameTab {
+  width: 100%;
+  height: 100%;
+}
+
+.graphShapeSelected {
+  fill: lightgreen;
+  stroke: blue;
+}
+
+.graphShapeFiltered {
+  fill: white;
+  stroke: lightgray;
+}
+
+.graphShapeToken {
+  fill: #f0f0f0;
+  stroke: gray;
+}
+
+.graphShapeWord {
+  fill: lightcyan;
+  stroke: gray;
+}
+
+.graphPath {
+  fill: none;
+  stroke: gray;
+  stroke-width: 1px;
+  stroke-dasharray: 4;
+}
+
+.graphPathFiltered {
+  fill: none;
+  stroke: lightgray;
+  stroke-width: 1px;
+  stroke-dasharray: 4;
+}
+
+.graphPathSelected {
+  fill: none;
+  stroke: blue;
+  stroke-width: 3px;
+}
+
+.graphSelectionRectangle {
+  fill: lightskyblue;
+}
+
+.graphText {
+  font: italic 16px sans-serif;
+  line-height: 0.65;
+  fill: gray;
+}
+
+.graphTextFiltered {
+  font: italic 16px sans-serif;
+  line-height: 0.65;
+  fill: lightgray;
+}
+
+.graphTextSelected {
+  font: italic 16px sans-serif;
+  line-height: 0.65;
+  fill: black;
+}
+
+.graphVertex {
+  fill: gray;
+  stroke: none;
+}
+
+.graphVertexFiltered {
+  fill: #f0f0f0;
+  stroke: none;
+}
+
+.graphVertexSelected {
+  fill: blue;
+  stroke: none;
+}
+
+.historyGroup {
+  padding-top: 10px;
+  font-weight: bold;
+}
+
+.historySource {
+  padding-right: 1ex;
+  color: blue;
+}
+
+.historyItem {
+  padding-left: 2ex;
+  padding-bottom: 1em;
+  font-weight: normal;
+}
+
+.historyItemHeader {
+  display: flex;
+  flex-direction: row;
+}
+
+.historyCart {
+  padding-left: 3ex;
+}
+
+.historyPane {
+  overflow: auto;
+  height: 100%;
+  width: 100%;
+}
+
+.infoPane {
+  padding: 1em;
+  overflow: auto;
+  height: 100%;
+  width: 100%;
+}
+
+.lexiconToken {
+  padding-bottom: 1ex;
+  font-weight: bold;
+}
+
+.lexiconAlias {
+  padding-left: 1em;
+  font-weight: normal;
+}
+
+.menuDetailColumn {
+  padding-left: 1em;
+  padding-right: 1em;
+  border-right: solid black 1px;
+}
+
+.nested {
+  padding-left: 2ex;
+  padding-bottom: 0px;
+  padding-top: 0px;
+  white-space: nowrap;
+}
+
+.selected {
+  background-color: gray;
+}
+
+.recorder {
+  background-color: lightgray;
+  padding: 4px;
+}
+
+.recorderInput {
+  display: flex;
+  flex-direction: row;
+}
+
+/* .recorderOutput {
+
+} */
+
+.warning {
+  margin-top: 4px;
+  border-color: red;
+  border-style: solid;
+  border-width: 2px;
+  background-color: pink;
+}
