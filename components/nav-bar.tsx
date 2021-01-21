@@ -3,23 +3,28 @@ import Nav from 'react-bootstrap/Nav';
 import {RouteComponentProps, withRouter} from "react-router";
 import {Link} from "react-router-dom";
 
+import StatefulLink from '../components/stateful-link';
+
 class NavBar extends React.Component<RouteComponentProps<any>> {
   render() {
-    const { location } = this.props;
+    // const { location } = this.props;
+    const pathName = this.props.location.pathname;
+    const [ignore, mode] = pathName.split('/');
 
     return (
       <div>
         <div>You are now at {location.pathname}</div>
-        <Nav variant="tabs" className="flex-row" defaultActiveKey={location.pathname}>
+        <Nav variant="tabs" className="flex-row" activeKey={mode}>
           <Nav.Item>
-            <Nav.Link to='/' eventKey="/" as={Link}>Home</Nav.Link>
+            <Nav.Link to='/' eventKey="" as={Link}>Home</Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link to='/edit' eventKey="/edit" as={Link}>Edit</Nav.Link>
+            <Nav.Link to='/edit' eventKey="edit" as={Link}>Edit</Nav.Link>
           </Nav.Item>
-          <Nav.Item>
+          {/* <Nav.Item>
             <Nav.Link to='/analyze' eventKey="/analyze" as={Link}>Analyze</Nav.Link>
-          </Nav.Item>
+          </Nav.Item> */}
+          <StatefulLink/>
         </Nav>
       </div>
     );

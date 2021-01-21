@@ -8,11 +8,12 @@ import {AnalyzerPathProps, Direction} from '../lib';
 
 // TODO
 //   Sticky links
-//   One or more errors in the network configuration are preventing analysis
-//   Invalid start location
-//   Invalid end location
-//   No routes for this pair
-//   Default to/from, start - from redux store
+//   After redux store
+//     One or more errors in the network configuration are preventing analysis
+//     Invalid start location
+//     Invalid end location
+//     No routes for this pair
+//     Default to/from, start - from redux store
 //   x Function to parse location
 //   x favicon
 //   x Convert to component
@@ -30,6 +31,7 @@ const keys = [
 
 class AnalyzeMode extends React.Component<RouteComponentProps<any>> {
   onSelect = (detailKey: string | undefined) => {
+    console.log(`onSelect(${detailKey})`);
     const history = this.props.history;
     const a = new AnalyzerPathProps(this.props.location.pathname);
     history.push(a.end(detailKey));
@@ -45,7 +47,6 @@ class AnalyzeMode extends React.Component<RouteComponentProps<any>> {
     } else {
       return (
         <div>
-          {/* <h1>Analyze Mode</h1> */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -94,7 +95,12 @@ class AnalyzeMode extends React.Component<RouteComponentProps<any>> {
             }}
           >
             <div>
-              <Nav className="flex-column" variant="pills" activeKey={a.endKey} onSelect={this.onSelect}>
+              <Nav
+                className="flex-column"
+                variant="pills"
+                activeKey={a.endKey}
+                onSelect={this.onSelect}
+              >
                 {
                   keys.map((key) => {
                     const path = a.end(key);
