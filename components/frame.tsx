@@ -10,6 +10,7 @@ import {
 
 import Analyze from './analyze-mode';
 import Edit from './edit-mode';
+import Editor from './editor';
 import NavBar from './nav-bar';
 import NotFound from './page-not-found';
 import Welcome from './welcome-mode';
@@ -45,7 +46,7 @@ export default function Frame() {
             component={Analyze}
           />
           <Route path="/edit">
-            <Edit />
+            <Editor />
           </Route>
           <Route exact path="/">
             <Welcome />
