@@ -20,14 +20,15 @@ class StatefulLink extends React.Component<Props> {
     const [ignore, mode, direction, start, end] = pathName.split('/');
 
     if (mode === this.props.mode && this.path !== pathName) {
-      console.log(`mode(${mode}): set path to ${pathName}`);
+      // console.log(`mode(${mode}): set path to ${pathName}`);
       this.path = pathName;
     }
-    console.log(`render path = ${this.path}`);
+    // console.log(`StatefulLink: render path = ${this.path}`);
+    // console.log(`StatefulLink: mode = ${mode}`);
 
     return (
       <Nav.Item>
-        <Nav.Link to={this.path} eventKey={mode} as={Link}>{this.props.children}</Nav.Link>
+        <Nav.Link to={this.path} eventKey={this.props.mode} as={Link}>{this.props.children}</Nav.Link>
       </Nav.Item>
     );
   }

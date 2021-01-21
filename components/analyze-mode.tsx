@@ -6,18 +6,6 @@ import {Link, Redirect} from 'react-router-dom';
 
 import {AnalyzerPathProps, Direction} from '../lib';
 
-// TODO
-//   Sticky links
-//   After redux store
-//     One or more errors in the network configuration are preventing analysis
-//     Invalid start location
-//     Invalid end location
-//     No routes for this pair
-//     Default to/from, start - from redux store
-//   x Function to parse location
-//   x favicon
-//   x Convert to component
-
 const keys = [
   'internet',
   'gateway',

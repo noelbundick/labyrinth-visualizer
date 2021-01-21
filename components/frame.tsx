@@ -25,36 +25,38 @@ export default function Frame() {
         <title>Labyrinth Visualizer</title>
         <link rel="icon" href="/security-24px.svg" />
       </Head>
-      <div>
+      <div style={{height:'100%', display: 'flex', flexDirection: 'column'}}>
         <NavBar/>
 
         {/* <div>
           Query: {forward}
         </div> */}
 
-        <Switch>
-          <Route
-            path={[
-              "/analyze/to/:start/:end",
-              "/analyze/to/:start",
-              "/analyze/to",
-              "/analyze/from/:start/:end",
-              "/analyze/from/:start",
-              "/analyze/from",
-              "/analyze"
-            ]}
-            component={Analyze}
-          />
-          <Route path="/edit">
-            <Editor />
-          </Route>
-          <Route exact path="/">
-            <Welcome />
-          </Route>
-          <Route>
-            <NotFound />
-          </Route>
-        </Switch>
+        <div style={{flexGrow: 1, backgroundColor: 'gray'}}>
+          <Switch>
+            <Route
+              path={[
+                "/analyze/to/:start/:end",
+                "/analyze/to/:start",
+                "/analyze/to",
+                "/analyze/from/:start/:end",
+                "/analyze/from/:start",
+                "/analyze/from",
+                "/analyze"
+              ]}
+              component={Analyze}
+            />
+            <Route path="/edit">
+              <Editor />
+            </Route>
+            <Route exact path="/">
+              <Welcome />
+            </Route>
+            <Route>
+              <NotFound />
+            </Route>
+          </Switch>
+        </div>
       </div>
     </Router>
   );

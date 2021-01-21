@@ -2,6 +2,7 @@ import * as yaml from 'js-yaml';
 
 export interface ApplicationState {
   configYamlText: string;
+  nodes: string[] | undefined;
 }
 
 export function initialState(): ApplicationState {
@@ -24,5 +25,8 @@ export function initialState(): ApplicationState {
 
   const configYamlText = yaml.dump(config);
 
-  return {configYamlText};
+  return {
+    configYamlText,
+    nodes: undefined,
+  };
 }
