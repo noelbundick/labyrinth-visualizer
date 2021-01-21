@@ -15,8 +15,8 @@ import NotFound from './page-not-found';
 import Welcome from './welcome-mode';
 
 export default function Frame() {
-  const router = useRouter();
-  const { forward } = router.query;
+  // const router = useRouter();
+  // const { forward } = router.query;
 
   return (
     <Router>

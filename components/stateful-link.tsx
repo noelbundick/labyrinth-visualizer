@@ -3,27 +3,31 @@ import Nav from 'react-bootstrap/Nav';
 import {RouteComponentProps, withRouter} from "react-router";
 import {Link} from "react-router-dom";
 
-class StatefulLink extends React.Component<RouteComponentProps<any>> {
+interface Props extends RouteComponentProps<any> {
+  mode: string;
+}
+
+class StatefulLink extends React.Component<Props> {
   path: string;
 
   constructor(props) {
     super(props);
-    this.path = '/analyze';
+    this.path = '/' + this.props.mode;
   }
 
   render() {
     const pathName = this.props.location.pathname;
     const [ignore, mode, direction, start, end] = pathName.split('/');
 
-    if (mode === 'analyze' && this.path !== pathName) {
-      console.log(`set path = ${pathName}`);
+    if (mode === this.props.mode && this.path !== pathName) {
+      console.log(`mode(${mode}): set path to ${pathName}`);
       this.path = pathName;
     }
     console.log(`render path = ${this.path}`);
 
     return (
       <Nav.Item>
-        <Nav.Link to={this.path} eventKey="analyze" as={Link}>Analyze</Nav.Link>
+        <Nav.Link to={this.path} eventKey={mode} as={Link}>{this.props.children}</Nav.Link>
       </Nav.Item>
     );
   }

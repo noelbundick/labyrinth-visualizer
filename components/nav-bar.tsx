@@ -13,7 +13,7 @@ class NavBar extends React.Component<RouteComponentProps<any>> {
 
     return (
       <div>
-        <div>You are now at {location.pathname}</div>
+        {/* <div>You are now at {location.pathname}</div> */}
         <Nav variant="tabs" className="flex-row" activeKey={mode}>
           <Nav.Item>
             <Nav.Link to='/' eventKey="" as={Link}>Home</Nav.Link>
@@ -21,10 +21,7 @@ class NavBar extends React.Component<RouteComponentProps<any>> {
           <Nav.Item>
             <Nav.Link to='/edit' eventKey="edit" as={Link}>Edit</Nav.Link>
           </Nav.Item>
-          {/* <Nav.Item>
-            <Nav.Link to='/analyze' eventKey="/analyze" as={Link}>Analyze</Nav.Link>
-          </Nav.Item> */}
-          <StatefulLink/>
+          <StatefulLink mode="analyze">Analyze</StatefulLink>
         </Nav>
       </div>
     );
