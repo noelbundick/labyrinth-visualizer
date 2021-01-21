@@ -5,7 +5,7 @@ import {Link} from "react-router-dom";
 
 class NavBar extends React.Component<RouteComponentProps<any>> {
   render() {
-    const { match, location, history } = this.props;
+    const { location } = this.props;
 
     return (
       <div>

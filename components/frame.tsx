@@ -1,3 +1,4 @@
+import Head from 'next/head'
 import {useRouter} from 'next/router'
 import React from "react";
 import {
@@ -19,12 +20,16 @@ export default function Frame() {
 
   return (
     <Router>
+      <Head>
+        <title>Labyrinth Visualizer</title>
+        <link rel="icon" href="/security-24px.svg" />
+      </Head>
       <div>
         <NavBar/>
 
-        <div>
+        {/* <div>
           Query: {forward}
-        </div>
+        </div> */}
 
         <Switch>
           <Route
