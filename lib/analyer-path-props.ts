@@ -1,3 +1,5 @@
+import {NodeSpec} from 'labyrinth-nsg';
+
 export enum Direction {
   TO,
   FROM
@@ -9,7 +11,7 @@ export class AnalyzerPathProps {
   endKey: string;
   redirect: boolean;
 
-  constructor(pathname: string) {
+  constructor(pathname: string, nodes: NodeSpec[] | undefined) {
     const [ignore, mode, direction, start, end] = pathname.split('/');
     // console.log(`pathname = "${pathname}"`);
     // console.log(`mode = "${mode}"`);
@@ -31,12 +33,21 @@ export class AnalyzerPathProps {
     } else if (direction === undefined) {
       this.direction = Direction.TO;
     } else {
+      // TODO: don't throw here.
       const message = `Bad direction: "${direction}".`;
       throw new TypeError(message);
     }
 
-    this.startKey = start ?? 'internet';
-    this.endKey = end ?? 'subnet3';
+    if (start !== undefined) {
+      this.startKey = start;
+    } else if (nodes !== undefined && nodes.length > 0) {
+      this.startKey = nodes[0].key;
+    } else {
+      this.startKey = 'error'; // TODO: handle this case.
+    }
+
+    // this.startKey = start ?? 'internet';
+    this.endKey = end ?? 'subnet3'; // TODO: handle this case.
   }
 
   to() {

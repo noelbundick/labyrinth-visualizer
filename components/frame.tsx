@@ -32,7 +32,7 @@ export default function Frame() {
           Query: {forward}
         </div> */}
 
-        <div style={{flexGrow: 1, backgroundColor: 'gray'}}>
+        <div style={{flexGrow: 1}}>
           <Switch>
             <Route
               path={[

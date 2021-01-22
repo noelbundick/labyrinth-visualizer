@@ -10,7 +10,7 @@ interface Props extends RouteComponentProps<any> {
 class StatefulLink extends React.Component<Props> {
   path: string;
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.path = '/' + this.props.mode;
   }

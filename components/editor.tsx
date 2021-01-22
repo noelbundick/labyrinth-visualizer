@@ -1,13 +1,14 @@
 import MonacoEditor, {Monaco} from "@monaco-editor/react";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import React, {useRef} from "react";
+import React from "react";
 import Button from 'react-bootstrap/Button';
 import {connect} from 'react-redux'
+import {RouteComponentProps, withRouter} from "react-router";
 import {Dispatch} from 'redux';
 
 import {AnyAction, ApplicationState, analyzeAction} from '../redux';
 
-interface Props {
+interface Props extends RouteComponentProps<any> {
   text: string;
   analyze: (configYamlText: string) => void;
 }
@@ -20,11 +21,13 @@ class Editor extends React.Component<Props, State> {
   editorRef: React.MutableRefObject<monaco.editor.IStandaloneCodeEditor>;//React.RefObject<monaco.editor.IStandaloneCodeEditor>;
   // editorRef2 = useRef(null);
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.onAnalyze = this.onAnalyze.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onEditorMount = this.onEditorMount.bind(this);
+
+    // TODO: sort out Typescript error on the following line.
     this.editorRef = React.createRef();
 
     console.log('constructor: this.setState({analysisIsCurrent: false})');
@@ -33,9 +36,9 @@ class Editor extends React.Component<Props, State> {
 
   componentWillUnmount() {
     console.log('Editor will unmount.');
-    console.log(this.editorRef.current.getValue());
+    console.log(this.editorRef.current!.getValue());
     // https://github.com/microsoft/monaco-editor/issues/686
-    const x = this.editorRef.current.saveViewState();
+    const x = this.editorRef.current!.saveViewState();
     console.log(JSON.stringify(x, null, 2));
   }
 
@@ -59,10 +62,11 @@ class Editor extends React.Component<Props, State> {
     // Test code for editor resizing.
     // this.editorRef.current.layout();
 
-    const yamlText = this.editorRef.current.getValue();
+    const yamlText = this.editorRef.current!.getValue();
     this.props.analyze(yamlText);
     console.log('onAnalyze: this.setState({analysisIsCurrent: true})');
     this.setState({analysisIsCurrent: true});
+    this.props.history.push('/analyze');
     // TODO: Navigate to Analysis pane?
   }
 
@@ -114,4 +118,4 @@ function mapDispatchToProps(dispatch: Dispatch<AnyAction>) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Editor);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Editor));

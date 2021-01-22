@@ -1,5 +1,6 @@
 import * as yaml from 'js-yaml';
-import { Reducer } from 'redux';
+import {GraphBuilder, NodeSpec} from 'labyrinth-nsg';
+import {Reducer} from 'redux';
 
 import {
   ActionType,
@@ -31,7 +32,11 @@ function applyAnalyze(
   { configYamlText }: AnalyzeAction
 ): ApplicationState {
 
-  const nodes = yaml.load(configYamlText) as string[];
+  // TODO: put this all in a function wrapped in a try/catch.
+  // Share with initialState()
+  const nodes = yaml.load(configYamlText) as NodeSpec[];
+  const builder = new GraphBuilder(appState.universe, appState.simplifier, nodes);
+  const graph = builder.buildGraph();
 
   console.log('applyAnalyze');
   console.log('nodes:');
@@ -39,7 +44,8 @@ function applyAnalyze(
 
   return {
     ...appState,
-    nodes
+    nodes,
+    graph
   }
 }
 

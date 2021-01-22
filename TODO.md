@@ -19,37 +19,85 @@
   * Query structure
     * ?forward=true
   * https://colinhacks.com/essays/building-a-spa-with-nextjs
+* Review everywhere the ! operator appears
+* Run linter
+* Figure out unit test strategy for Next.js app.
+  * Is it possible to use mocha with Next.js build system?
+* Host on github pages
+* Firewalls
+* Better sample network
+* Importing ARM templates
+  * https://blog.geuer-pollmann.de/blog/2019/10/14/locally-evaluating-azure-arm-templates/
+* Error handling strategy
+  * Add errors to ApplicationState?
+  * Error decoding/rendering function.
+  * Error base class?
 * Frame
   * x favicon
   * Route not found
 * NavBar
   * x BUG: Analyze tab always rendered as active
 * Editor
-  * Resize Monaco editor when window resizes
-    * https://dev.to/tepythai/why-100vw-causes-horizontal-scrollbar-4nlm
-    * https://stackoverflow.com/questions/45654579/height-of-the-monaco-editor
-    * automaticLayout: true
-    * https://stackoverflow.com/questions/47017753/monaco-editor-dynamically-resizable
-    * window.onresize = function (){
-        editor.layout();
-      };
+  * Figure out typing for this.editorRef
+    * https://dev.to/dinhhuyams/introduction-to-useref-hook-3m7n#:~:text=Well%2C%20the%20difference%20is%20that,full%20lifetime%20of%20the%20component.
+  * Layout/sizing
+    * Editor is too tall for its div
+    * Resize Monaco editor when window resizes
+      * https://dev.to/tepythai/why-100vw-causes-horizontal-scrollbar-4nlm
+      * https://stackoverflow.com/questions/45654579/height-of-the-monaco-editor
+      * automaticLayout: true
+      * https://stackoverflow.com/questions/47017753/monaco-editor-dynamically-resizable
+      * window.onresize = function (){
+          editor.layout();
+        };
   * Button to revert buffer to analyzed text
-  * Editor is too tall for its div
+  * Load text
+  * Save text
   * Save and restore editor text and state across navigation
     * . componentWillUnmount()
     * ALTERNATE APPROACH: https://stackoverflow.com/questions/50777333/react-hide-a-component-on-a-specific-route
   * x Save/Update/Analyze button
-    * Dirty buffer detection
-    * Router navigate to analyze on success
+    * x Dirty buffer detection
+    * . Router navigate to analyze on success
+    * Only navigate on success.
   * Error panel
-  * Instructions to user. Should these be markdown?
+    * Addition of splitter will make editor resizing more important
   * Help pane
+    * Addition of splitter will make editor resizing more important
+    * Instructions to user. Should these be markdown?
   * Load examples and accompanying text
   * x Tab rename to 'Configure'
   * x Dark mode
   * x Wrap Editor inside of another component that does Redux dispatch
   * x YAML syntax highlighting
 * AnalyzeMode
+  * Consider using sagas to compute flows in the background
+  * Cache graph, flows, cycles
+  * Cascading selectors: upstream change resets downstream selectors
+  * Cascading selectors instead of select/master/detail
+  * Scrollbars on selectors (or master list)
+  * Filter by route
+  * Filter by route components
+  * Bad paths
+    * Bad mode
+      * /foobar
+    * Redirect to add defaults
+      * /analyze
+      * /analyze/to
+      * /analyze/from
+      * /analyze/to/x
+      * /analyze/from/x
+    * Bad direction
+      * /analyze/foo
+    * Unknown start
+      * /analyze/to/foobar
+      * /analyze/from/foobar
+      * /analyze/to/foobar/subnet1
+      * /analyze/from/foobar/subnet1
+    * Unknown end
+      * /analyze/to/internet/foobar
+      * /analyze/from/internet/foobar
+    * Trailing slash
   * After redux store
     * One or more errors in the network configuration are preventing analysis
     * Invalid start location
