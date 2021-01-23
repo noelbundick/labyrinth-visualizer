@@ -71,6 +71,8 @@
   * x Wrap Editor inside of another component that does Redux dispatch
   * x YAML syntax highlighting
 * AnalyzeMode
+  * x Warning: Each child in a list should have a unique "key" prop.
+    * x http://localhost:3000/analyze/from/server/subnet2
   * Nodes shouldn't report paths to themselves
     * not necessarily
     * server -> subnet2 -> server should filter out loopback

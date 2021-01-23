@@ -29,7 +29,8 @@ class AnalyzeMode extends React.Component<Props> {
   render() {
     const nodes = this.props.nodes;
     const path = this.props.location.pathname;
-
+    console.log('Match:');
+    console.log(JSON.stringify(this.props.location.search));
     if (nodes === undefined) {
       return this.renderError();
     } else {
@@ -177,11 +178,9 @@ class AnalyzeMode extends React.Component<Props> {
                 }
               </b>
               <div>
-              {/* {flow.paths.map(path => <div>{`via ${path.node}`}</div>)} */}
                 {
-                  flow.paths.map(path => (
-                    <div>
-                      {/* {graph.formatPath(path, a.direction === Direction.FROM)} */}
+                  flow.paths.map((path, index) => (
+                    <div key={index}>
                       {renderPath(a, graph, path, a.direction === Direction.FROM)}
                     </div>
                   ))
@@ -300,9 +299,9 @@ function renderPath(
   const elements: JSX.Element[] = [];
   for (const [i, key] of keys.entries()) {
     if (i !== 0) {
-      elements.push(<GoArrowRight/>);
+      elements.push(<GoArrowRight key={'_arrow' + i}/>);
     }
-    elements.push(<Link to={key}>{key}</Link>);
+    elements.push(<Link to={key} key={key + i.toString()}>{key}</Link>);
   }
 
   return elements;
