@@ -1,24 +1,14 @@
-import {FlowNode, Graph, NodeSpec} from 'labyrinth-nsg';
+import {FlowNode, Graph, NodeSpec, Path} from 'labyrinth-nsg';
 import React from "react";
 import Dropdown from 'react-bootstrap/Dropdown';
 import Nav from 'react-bootstrap/Nav';
+import { GoArrowLeft, GoArrowRight } from 'react-icons/go';
 import {connect} from 'react-redux'
 import {RouteComponentProps, withRouter} from "react-router";
 import {Link, Redirect} from 'react-router-dom';
 
 import {AnalyzerPathProps, Direction} from '../lib';
 import {ApplicationState} from '../redux';
-
-const keys = [
-  'internet',
-  'gateway',
-  'subnet1',
-  'subnet2',
-  'subnet3',
-  'vm1',
-  'vm2',
-  'vm3'
-];
 
 interface Props extends RouteComponentProps<any> {
   nodes: NodeSpec[] | undefined;
@@ -86,11 +76,15 @@ class AnalyzeMode extends React.Component<Props> {
     } else {
       // TODO: cache this computation. Only recompute if inputs change.
       const {cycles, flows} = graph.analyze(a.startKey, a.direction === Direction.FROM);
+      const filteredFlows = flows.filter(
+        flow => flow.paths.length > 0
+      );
+      // const filteredFlows = flows;
 
       return (
         <div>
           { this.renderRouteSelectors(a, nodes) }
-          { renderExpanation(a) }
+          { renderExpanation(a, filteredFlows) }
 
           <div
             style={{
@@ -99,8 +93,8 @@ class AnalyzeMode extends React.Component<Props> {
               width: '100%'
             }}
           >
-            { this.renderMaster(a, flows) }
-            { this.renderDetail(a, flows) }
+            { this.renderMaster(a, filteredFlows) }
+            { this.renderDetail(a, graph, filteredFlows) }
           </div>
         </div>
       )
@@ -109,7 +103,7 @@ class AnalyzeMode extends React.Component<Props> {
 
   renderMaster(a: AnalyzerPathProps, flows: FlowNode[]) {
     return (
-      <div>
+      <div style={{backgroundColor: 'lightgray'}}>
         <Nav
           className="flex-column"
           variant="pills"
@@ -117,14 +111,23 @@ class AnalyzeMode extends React.Component<Props> {
           onSelect={this.onSelect}
         >
           {
-            flows.filter(
-              flow => flow.routes.conjunctions.length > 0
-            ).map((flow) => {
+            flows.map((flow) => {
               const key = flow.node.key;
               const path = a.end(key);
               return (
-                <Nav.Item key={key}>
-                  <Nav.Link to={path} eventKey={key} as={Link}>{key}</Nav.Link>
+                <Nav.Item key={key} style={{paddingTop: '0', paddingBottom: '0'}}>
+                  <Nav.Link
+                    to={path}
+                    eventKey={key}
+                    as={Link}
+                    style={{
+                      whiteSpace: 'nowrap',
+                      paddingTop: '0',
+                      paddingBottom: '0'
+                    }}
+                  >
+                    {key}
+                  </Nav.Link>
                 </Nav.Item>
               )
             })
@@ -134,28 +137,61 @@ class AnalyzeMode extends React.Component<Props> {
     );
   }
 
-  renderDetail(a: AnalyzerPathProps, flows: FlowNode[]) {
-    const flow = flows.find(flow => flow.node.key === a.endKey);
-    if (flow === undefined) {
-      return <div>Unknown node {a.endKey}</div>
+  renderDetail(a: AnalyzerPathProps, graph: Graph, flows: FlowNode[]) {
+    if (!a.endKey) {
+      return <div></div>
     } else {
-      return (
-        <div style={{flexGrow: 1, backgroundColor: 'lightblue'}}>
-          <h2>
-            {
-              // TODO: handle case where there are no routes
-              (a.direction === Direction.TO) ? 
-              `Routes from ${a.endKey} to ${a.startKey}` :
-              `Routes from ${a.startKey} to ${a.endKey}`
-            }
-          </h2>
-          <div>
-            <pre>
-              {flow.routes.format({})}
-            </pre>
-          </div>
-        </div>
-      );
+      const flow = flows.find(flow => flow.node.key === a.endKey);
+      if (flow === undefined) {
+        return <div>Unknown node "{a.endKey}"</div>
+      } else {
+        if (flow.paths.length === 0) {
+          // TODO: better handling for this case.
+          // This case may never happen now that flows are filtered.
+          return (
+            <div>No paths</div>
+          );
+        } else {
+          return (
+            <div style={{flexGrow: 1, backgroundColor: 'lightblue'}}>
+              <b>
+                {
+                  // TODO: handle case where there are no routes
+                  (a.direction === Direction.TO) ? 
+                  `Routes from ${a.endKey} to ${a.startKey}` :
+                  `Routes from ${a.startKey} to ${a.endKey}`
+                }
+              </b>
+              <div>
+                <pre>
+                  {flow.routes.format({})}
+                </pre>
+              </div>
+
+              <b>
+                {
+                  // TODO: handle case where there are no paths
+                  (a.direction === Direction.TO) ? 
+                  `Paths from ${a.endKey} to ${a.startKey}` :
+                  `Paths from ${a.startKey} to ${a.endKey}`
+                }
+              </b>
+              <div>
+              {/* {flow.paths.map(path => <div>{`via ${path.node}`}</div>)} */}
+                {
+                  flow.paths.map(path => (
+                    <div>
+                      {/* {graph.formatPath(path, a.direction === Direction.FROM)} */}
+                      {renderPath(a, graph, path, a.direction === Direction.FROM)}
+                    </div>
+                  ))
+                }
+              </div>
+
+            </div>
+          );
+        }
+      }
     }
   }
 
@@ -203,27 +239,78 @@ class AnalyzeMode extends React.Component<Props> {
   }
 }
 
-function renderExpanation(a: AnalyzerPathProps) {
-  if (a.direction === Direction.TO) {
-    return (
-      <div>
-        The nodes listed below have routes to the <b>{a.startKey}</b> node.
-        Click on each node for more information.
-      </div>
-    )
+function renderExpanation(
+  a: AnalyzerPathProps,
+  flows: FlowNode[]
+) {
+  if (flows.length === 0) {
+    if (a.direction === Direction.TO) {
+      return (
+        <div>
+          There are no nodes with routes to the <b>{a.startKey}</b> node.
+        </div>
+      )
+    } else {
+      return (
+        <div>
+          The <b>{a.startKey}</b> node has no routes to other nodes.
+        </div>
+      )
+    }
   } else {
-    return (
-      <div>
-        The <b>{a.startKey}</b> node has routes to the nodes listed below.
-        Click on each node for more information.
-      </div>
-    )
+    if (a.direction === Direction.TO) {
+      return (
+        <div>
+          The nodes listed below have routes to the <b>{a.startKey}</b> node.
+          Click on each node for more information.
+        </div>
+      )
+    } else {
+      return (
+        <div>
+          The <b>{a.startKey}</b> node has routes to the nodes listed below.
+          Click on each node for more information.
+        </div>
+      )
+    }
   }
 }
+
+function renderPath(
+  a: AnalyzerPathProps,
+  graph: Graph,
+  path: Path,
+  outbound: boolean
+) {
+  const keys: string[] = [];
+  let p: Path | undefined = path;
+
+  if (outbound) {
+    while (p) {
+      keys.unshift(graph.nodes[p.node].key);
+      p = p.previous;
+    }
+  } else {
+    while (p) {
+      keys.push(graph.nodes[p.node].key);
+      p = p.previous;
+    }
+  }
+
+  const elements: JSX.Element[] = [];
+  for (const [i, key] of keys.entries()) {
+    if (i !== 0) {
+      elements.push(<GoArrowRight/>);
+    }
+    elements.push(<Link to={key}>{key}</Link>);
+  }
+
+  return elements;
+}
+
 
 function mapStateToProps({ graph, nodes }: ApplicationState) {
   return { graph, nodes };
 }
 
 export default connect(mapStateToProps)(withRouter(AnalyzeMode))
-// export default withRouter(AnalyzeMode);

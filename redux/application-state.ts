@@ -94,7 +94,12 @@ export function initialState(): ApplicationState {
       name: 'server',
       key: 'server',
       endpoint: true,
-      rules: [],
+      rules: [
+        {
+          destination: 'subnet2',
+          destinationIp: 'except loopback'
+        }
+      ],
     },
   ];
 

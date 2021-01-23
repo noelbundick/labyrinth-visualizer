@@ -8,7 +8,7 @@ export enum Direction {
 export class AnalyzerPathProps {
   direction: Direction;
   startKey: string;
-  endKey: string;
+  endKey?: string;
   redirect: boolean;
 
   constructor(pathname: string, nodes: NodeSpec[] | undefined) {
@@ -46,8 +46,11 @@ export class AnalyzerPathProps {
       this.startKey = 'error'; // TODO: handle this case.
     }
 
-    // this.startKey = start ?? 'internet';
-    this.endKey = end ?? 'subnet3'; // TODO: handle this case.
+    this.endKey = end;
+    // if (end !== undefined) {}
+
+    // // this.startKey = start ?? 'internet';
+    // this.endKey = end ?? 'subnet3'; // TODO: handle this case.
   }
 
   to() {
@@ -55,7 +58,7 @@ export class AnalyzerPathProps {
       '/analyze',
       'to',
       this.startKey,
-      this.endKey
+      // this.endKey
     ].join('/');
   }
 
@@ -64,7 +67,7 @@ export class AnalyzerPathProps {
       '/analyze',
       'from',
       this.startKey,
-      this.endKey
+      // this.endKey
     ].join('/');
   }
 
@@ -73,7 +76,7 @@ export class AnalyzerPathProps {
       '/analyze',
       this.direction === Direction.FROM ? 'from' : 'to',
       name,
-      this.endKey
+      // this.endKey
     ].join('/');
   }
 

@@ -71,11 +71,17 @@
   * x Wrap Editor inside of another component that does Redux dispatch
   * x YAML syntax highlighting
 * AnalyzeMode
+  * Nodes shouldn't report paths to themselves
+    * not necessarily
+    * server -> subnet2 -> server should filter out loopback
   * Consider using sagas to compute flows in the background
   * Cache graph, flows, cycles
-  * Cascading selectors: upstream change resets downstream selectors
+  * . Cascading selectors: upstream change resets downstream selectors
   * Cascading selectors instead of select/master/detail
   * Scrollbars on selectors (or master list)
+  * Render routes
+  * Render paths
+  * Render cycles
   * Filter by route
   * Filter by route components
   * Bad paths
