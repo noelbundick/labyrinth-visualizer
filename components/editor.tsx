@@ -20,6 +20,7 @@ interface Props extends RouteComponentProps<any> {
 
 interface State {
   analysisIsCurrent: boolean;
+  navigate: boolean;
 }
 
 class Editor extends React.Component<Props, State> {
@@ -34,7 +35,10 @@ class Editor extends React.Component<Props, State> {
     this.editorRef = React.createRef();
 
     console.log('constructor: this.setState({analysisIsCurrent: false})');
-    this.state = { analysisIsCurrent: false };
+    this.state = {
+      analysisIsCurrent: false,
+      navigate: false
+    };
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -46,6 +50,17 @@ class Editor extends React.Component<Props, State> {
         console.log('  this.editorRef.current.layout()');
         this.editorRef.current.layout();
       }
+    }
+
+    if (this.state.navigate && !this.props.error) {
+      console.log(`  this.state.navigate: ${this.state.navigate}`);
+      console.log(`  this.props.error: ${this.props.error}`);
+      this.props.history.push('/analyze');
+      this.setState({
+        ...this.state,
+        analysisIsCurrent: true,
+        navigate: false
+      });
     }
   }
 
@@ -81,7 +96,10 @@ class Editor extends React.Component<Props, State> {
     const yamlText = this.editorRef.current!.getValue();
     this.props.analyze(yamlText);
     console.log('onAnalyze: this.setState({analysisIsCurrent: true})');
-    this.setState({ analysisIsCurrent: true });
+    this.setState({
+      // analysisIsCurrent: true,
+      navigate: true
+    });
 
     // TODO: only navigate if there isn't an error.
     // this.props.history.push('/analyze');
