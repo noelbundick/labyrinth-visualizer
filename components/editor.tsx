@@ -115,7 +115,7 @@ class Editor extends React.Component<Props, State> {
       }}>
         <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
           <div style={{ flexGrow: 1 }}>
-            <p>xxEditor instructions go here</p>
+            <p>Editor instructions go here</p>
             <p>Second line</p>
           </div>
           <div>
@@ -148,12 +148,14 @@ class Editor extends React.Component<Props, State> {
 
 function renderError(error?: Error) {
   if (error) {
+    console.log('rendering error');
     return (
       <div>
         {error.message}
       </div>
     );
   } else {
+    console.log('rendering ok');
     return null;
   }
 }
