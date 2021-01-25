@@ -3,7 +3,6 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import React from "react";
 import Button from 'react-bootstrap/Button';
 import {connect} from 'react-redux';
-// import ReactResizeDetector from 'react-resize-detector';
 import { withResizeDetector } from 'react-resize-detector';
 import { ComponentsProps } from 'react-resize-detector/build/ResizeDetector';
 import {RouteComponentProps, withRouter} from "react-router";
@@ -24,17 +23,14 @@ interface State {
 }
 
 class Editor extends React.Component<Props, State> {
-  editorRef: React.MutableRefObject<monaco.editor.IStandaloneCodeEditor | null>;//React.RefObject<monaco.editor.IStandaloneCodeEditor>;
-  // editorRef2 = useRef(null);
+  editorRef: React.MutableRefObject<monaco.editor.IStandaloneCodeEditor | null>;
 
   constructor(props: Props) {
     super(props);
     this.onAnalyze = this.onAnalyze.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onEditorMount = this.onEditorMount.bind(this);
-    this.onTest = this.onTest.bind(this);
 
-    // TODO: sort out Typescript error on the following line.
     this.editorRef = React.createRef();
 
     console.log('constructor: this.setState({analysisIsCurrent: false})');
@@ -82,9 +78,6 @@ class Editor extends React.Component<Props, State> {
   }
 
   onAnalyze() {
-    // Test code for editor resizing.
-    // this.editorRef.current.layout();
-
     const yamlText = this.editorRef.current!.getValue();
     this.props.analyze(yamlText);
     console.log('onAnalyze: this.setState({analysisIsCurrent: true})');
@@ -92,13 +85,6 @@ class Editor extends React.Component<Props, State> {
 
     // TODO: only navigate if there isn't an error.
     // this.props.history.push('/analyze');
-  }
-
-  onTest() {
-    console.log('onTest()');
-    if (this.editorRef.current) {
-      this.editorRef.current.layout();
-    }
   }
 
   render() {
@@ -123,14 +109,6 @@ class Editor extends React.Component<Props, State> {
             >
               Analyze
             </Button>
-            <Button
-              className="btn btn-success btn-sm"
-              disabled={this.state.analysisIsCurrent}
-              onClick={this.onTest}
-              title="Test"
-            >
-              Test
-            </Button>
           </div>
         </div>
 
@@ -142,52 +120,6 @@ class Editor extends React.Component<Props, State> {
             onChange={this.onChange}
             theme="vs-dark"
           />
-          {/* <ReactResizeDetector handleWidth handleHeight>
-            {({ width, height }) => <div>{`${width}x${height}`}</div>}
-          </ReactResizeDetector>; */}
-          {/* <ReactResizeDetector handleWidth handleHeight>
-            {({ width, height }) => (
-              <MonacoEditor
-                // options={{ automaticLayout: true, wordWrap: 'on' }}
-                defaultLanguage="yaml"
-                defaultValue={this.props.text}
-                onMount={this.onEditorMount}
-                onChange={this.onChange}
-                theme="vs-dark"
-                width={width}
-                height={height}
-              />
-          )}
-          </ReactResizeDetector>; */}
-
-          {/* <MonacoEditor
-            // options={{ automaticLayout: true, wordWrap: 'on' }}
-            defaultLanguage="yaml"
-            defaultValue={this.props.text}
-            onMount={this.onEditorMount}
-            onChange={this.onChange}
-            theme="vs-dark"
-          /> */}
-          {/* <div style = {{width:'100%', height:'100%'}}> */}
-
-
-            {/* <ReactResizeDetector
-              handleWidth
-              handleHeight
-              onResize = {this.onTest}
-            >
-              <MonacoEditor
-                // options={{ automaticLayout: true, wordWrap: 'on' }}
-                defaultLanguage="yaml"
-                defaultValue={this.props.text}
-                onMount={this.onEditorMount}
-                onChange={this.onChange}
-                theme="vs-dark"
-              />
-            </ReactResizeDetector> */}
-
-
-          {/* </div> */}
         </div>
 
         {renderError(this.props.error)}
@@ -212,7 +144,6 @@ function mapStateToProps({ configYamlText, error }: ApplicationState) {
   return { text: configYamlText, error };
 }
 
-// export default connect(mapStateToProps)(Editor);
 function mapDispatchToProps(dispatch: Dispatch<AnyAction>) {
   return {
     analyze: (configYamlText: string) => {
@@ -221,34 +152,10 @@ function mapDispatchToProps(dispatch: Dispatch<AnyAction>) {
   };
 }
 
-// const EditorWithRouter = withRouter(Editor);
-// const EditorWithDetector = withResizeDetector<Props>(
-//   EditorWithRouter,
-//   {} as ComponentsProps
-// );
-// const EditorConnected = connect(mapStateToProps, mapDispatchToProps)(EditorWithDetector);
-
 const EditorWithRouter = withRouter(Editor);
 const EditorConnected = connect(mapStateToProps, mapDispatchToProps)(EditorWithRouter);
-const EditorWithDetector = withResizeDetector<Props>(
+const EditorWithResize = withResizeDetector<Props>(
   EditorConnected,
   {handleWidth: true, handleHeight: true} as ComponentsProps
 );
-export default EditorWithDetector;
-
-// const EditorWithDetector = withResizeDetector<Props>(
-//   Editor,
-//   {} as ComponentsProps
-// );
-// const EditorConnected = connect(mapStateToProps, mapDispatchToProps)(EditorWithDetector);
-// export default withRouter(EditorConnected);
-
-
-// const EditorConnected = connect(mapStateToProps, mapDispatchToProps)(Editor);
-// const EditorWithDetector = withResizeDetector<Props>(
-//   EditorConnected,
-//   {} as ComponentsProps
-// );
-// export default withRouter(EditorWithDetector);
-
-//export default connect(mapStateToProps, mapDispatchToProps)(withRouter(EditorWithDetector));
+export default EditorWithResize;

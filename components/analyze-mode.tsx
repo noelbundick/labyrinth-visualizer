@@ -27,15 +27,13 @@ class AnalyzeMode extends React.Component<Props> {
 
   render() {
     const world = this.props.world;
-    console.log('Match:');
+    console.log('this.props.location.search:');
     console.log(JSON.stringify(this.props.location.search));
     if (world === undefined) {
       return this.renderNoGraphError();
     } else {
       const graph = world.graph;
       const nodes = graph.nodes.map(node => node.spec);
-      console.log('nodesxxx:');
-      console.log(JSON.stringify(nodes, null, 2));
       const path = this.props.location.pathname;
       const a = new AnalyzerPathProps(path, nodes);
       console.log(a.path());
@@ -60,30 +58,31 @@ class AnalyzeMode extends React.Component<Props> {
     if (!nodes.find(node => node.key === a.startKey)) {
       return this.renderUnknownNodeError(a, nodes);
     } else {
-      return this.renderPage2(a, nodes, graph);
+      return this.renderValidPage(a, nodes, graph);
     }
   }
 
   renderUnknownNodeError(a: AnalyzerPathProps, nodes: NodeSpec[]) {
     return (
       <div>
-        { this.renderRouteSelectors(a, nodes) }
+        { renderRouteSelectors(a, nodes) }
         <div>Unknown node {a.startKey}</div>
       </div>
     )
   }
 
-  renderPage2(a: AnalyzerPathProps, nodes: NodeSpec[], graph: Graph) {
+  renderValidPage(a: AnalyzerPathProps, nodes: NodeSpec[], graph: Graph) {
     // TODO: cache this computation. Only recompute if inputs change.
     const {cycles, flows} = graph.analyze(a.startKey, a.direction === Direction.FROM);
+
+    // Only render flows for reachable nodes.
     const filteredFlows = flows.filter(
       flow => flow.paths.length > 0
     );
-    // const filteredFlows = flows;
 
     return (
       <div>
-        { this.renderRouteSelectors(a, nodes) }
+        { renderRouteSelectors(a, nodes) }
         { renderExpanation(a, filteredFlows) }
 
         <div
@@ -144,95 +143,43 @@ class AnalyzeMode extends React.Component<Props> {
       if (flow === undefined) {
         return <div>Unknown node "{a.endKey}"</div>
       } else {
-        if (flow.paths.length === 0) {
-          // TODO: better handling for this case.
-          // This case may never happen now that flows are filtered.
-          return (
-            <div>No paths</div>
-          );
-        } else {
-          return (
-            <div style={{flexGrow: 1, backgroundColor: 'lightblue'}}>
-              <b>
-                {
-                  // TODO: handle case where there are no routes
-                  (a.direction === Direction.TO) ? 
-                  `Routes from ${a.endKey} to ${a.startKey}` :
-                  `Routes from ${a.startKey} to ${a.endKey}`
-                }
-              </b>
-              <div>
-                <pre>
-                  {flow.routes.format({})}
-                </pre>
-              </div>
-
-              <b>
-                {
-                  // TODO: handle case where there are no paths
-                  (a.direction === Direction.TO) ? 
-                  `Paths from ${a.endKey} to ${a.startKey}` :
-                  `Paths from ${a.startKey} to ${a.endKey}`
-                }
-              </b>
-              <div>
-                {
-                  flow.paths.map((path, index) => (
-                    <div key={index}>
-                      {renderPath(a, graph, path, a.direction === Direction.FROM)}
-                    </div>
-                  ))
-                }
-              </div>
-
+        return (
+          <div style={{flexGrow: 1, backgroundColor: 'lightblue'}}>
+            <b>
+              {
+                // TODO: handle case where there are no routes
+                (a.direction === Direction.TO) ? 
+                `Routes from ${a.endKey} to ${a.startKey}` :
+                `Routes from ${a.startKey} to ${a.endKey}`
+              }
+            </b>
+            <div>
+              <pre>
+                {flow.routes.format({})}
+              </pre>
             </div>
-          );
-        }
+
+            <b>
+              {
+                // TODO: handle case where there are no paths
+                (a.direction === Direction.TO) ? 
+                `Paths from ${a.endKey} to ${a.startKey}` :
+                `Paths from ${a.startKey} to ${a.endKey}`
+              }
+            </b>
+            <div>
+              {
+                flow.paths.map((path, index) => (
+                  <div key={index}>
+                    {renderPath(a, graph, path, a.direction === Direction.FROM)}
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        );
       }
     }
-  }
-
-  renderRouteSelectors(a: AnalyzerPathProps, nodes: NodeSpec[]) {
-    return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        flexDirection: 'row',
-        width: '100%',
-        // height: '100%'
-      }}>
-        <span style={{
-          fontSize: '15pt',
-          paddingRight: '1ex'
-        }}>
-          Routes
-        </span>
-        <Dropdown>
-          <Dropdown.Toggle variant="light" id="dropdown-basic">
-            { a.direction === Direction.TO ? 'To' : 'From' }
-          </Dropdown.Toggle>
-  
-          <Dropdown.Menu>
-            <Dropdown.Item to={a.to()} as={Link}>To</Dropdown.Item>
-            <Dropdown.Item to={a.from()} as={Link}>From</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-        <Dropdown>
-          <Dropdown.Toggle variant="light" id="dropdown-basic">
-            { a.startKey }
-          </Dropdown.Toggle>
-  
-          <Dropdown.Menu>
-            {
-              nodes.map((node) => {
-                const key = node.key;
-                return <Dropdown.Item to={a.start(key)} key={key} as={Link}>{key}</Dropdown.Item>
-              })
-            }
-          </Dropdown.Menu>
-        </Dropdown>
-      </div>
-    );
   }
 }
 
@@ -273,6 +220,48 @@ function renderExpanation(
   }
 }
 
+function renderRouteSelectors(a: AnalyzerPathProps, nodes: NodeSpec[]) {
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      flexDirection: 'row',
+      width: '100%',
+    }}>
+      <span style={{
+        fontSize: '15pt',
+        paddingRight: '1ex'
+      }}>
+        Routes
+      </span>
+      <Dropdown>
+        <Dropdown.Toggle variant="light" id="dropdown-basic">
+          { a.direction === Direction.TO ? 'To' : 'From' }
+        </Dropdown.Toggle>
+
+        <Dropdown.Menu>
+          <Dropdown.Item to={a.to()} as={Link}>To</Dropdown.Item>
+          <Dropdown.Item to={a.from()} as={Link}>From</Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
+      <Dropdown>
+        <Dropdown.Toggle variant="light" id="dropdown-basic">
+          { a.startKey }
+        </Dropdown.Toggle>
+
+        <Dropdown.Menu>
+          {
+            nodes.map((node) => {
+              const key = node.key;
+              return <Dropdown.Item to={a.start(key)} key={key} as={Link}>{key}</Dropdown.Item>
+            })
+          }
+        </Dropdown.Menu>
+      </Dropdown>
+    </div>
+  );
+}
+
 function renderPath(
   a: AnalyzerPathProps,
   graph: Graph,
@@ -309,9 +298,5 @@ function renderPath(
 function mapStateToProps({ world }: ApplicationState) {
   return { world };
 }
-
-// function mapStateToProps({ graph, nodes }: ApplicationState) {
-//   return { graph, nodes };
-// }
 
 export default connect(mapStateToProps)(withRouter(AnalyzeMode))

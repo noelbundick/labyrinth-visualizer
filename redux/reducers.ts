@@ -35,11 +35,6 @@ function applyAnalyze(
 
   // TODO: put this all in a function wrapped in a try/catch.
   // Share with initialState()
-  // const nodes = yaml.load(configYamlText) as NodeSpec[];
-  // const builder = new GraphBuilder(appState.universe, appState.simplifier, nodes);
-  // const graph = builder.buildGraph();
-
-  
   try {
     const graphSpec = loadYamlNodeSpecs(configYamlText);
     const world = createWorld(firewallSpec, graphSpec);
@@ -56,15 +51,6 @@ function applyAnalyze(
       error: error as Error
     };
   }
-  // console.log('applyAnalyze');
-  // console.log('nodes:');
-  // console.log(JSON.stringify(nodes, null, 2));
-
-  // return {
-  //   ...appState,
-  //   nodes,
-  //   graph
-  // }
 }
 
 function applyUpdateConfigText(

@@ -13,12 +13,6 @@ export class AnalyzerPathProps {
 
   constructor(pathname: string, nodes: NodeSpec[] | undefined) {
     const [ignore, mode, direction, start, end] = pathname.split('/');
-    // console.log(`pathname = "${pathname}"`);
-    // console.log(`mode = "${mode}"`);
-    // if (mode !== 'analyze') {
-    //   const message = `Bad path "${pathname}" "${mode}".`;
-    //   throw new TypeError(message);
-    // }
 
     this.redirect = (
       direction === undefined ||

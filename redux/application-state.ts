@@ -1,24 +1,10 @@
 import * as yaml from 'js-yaml';
-
-import {
-  createSimplifier,
-  firewallSpec,
-  ForwardRuleSpecEx,
-  Graph,
-  GraphBuilder,
-  loadYamlNodeSpecs,
-  NodeSpec,
-  Simplifier,
-  Universe
-} from 'labyrinth-nsg';
+import { firewallSpec, loadYamlNodeSpecs, NodeSpec} from 'labyrinth-nsg';
 
 import { createWorld, World } from '../lib';
 
 export interface ApplicationState {
   configYamlText: string;
-  // graph: Graph | undefined;
-  // universe: Universe;
-  // simplifier: Simplifier<ForwardRuleSpecEx>;
   world?: World;
   error?: Error;
 }
@@ -111,14 +97,8 @@ export function initialState(): ApplicationState {
 
   // TODO: put this all in a function wrapped in a try/catch.
   // Share with applyAnalyze()
-  // const universe = new Universe(firewallSpec);
-  // const simplifier = createSimplifier<ForwardRuleSpecEx>(universe);
-  // const builder = new GraphBuilder(universe, simplifier, nodes);
-  // const graph = builder.buildGraph();
-
-  const graphSpec = loadYamlNodeSpecs(configYamlText);
-
   try {
+    const graphSpec = loadYamlNodeSpecs(configYamlText);
     const world = createWorld(firewallSpec, graphSpec);
     return {configYamlText, world, error: undefined};
   } catch (error) {
@@ -127,13 +107,4 @@ export function initialState(): ApplicationState {
       error: error as Error
     };
   }
-
-  // return {
-  //   configYamlText,
-  //   // nodes: undefined,
-  //   // graph: undefined,
-  //   // universe,
-  //   // simplifier
-  //   ...world
-  // };
 }

@@ -52,18 +52,20 @@
 * NavBar
   * x BUG: Analyze tab always rendered as active
 * Editor
-  * Figure out typing for this.editorRef
-    * https://dev.to/dinhhuyams/introduction-to-useref-hook-3m7n#:~:text=Well%2C%20the%20difference%20is%20that,full%20lifetime%20of%20the%20component.
-  * Layout/sizing
-    * Editor is too tall for its div
-    * PROMISING: https://github.com/react-monaco-editor/react-monaco-editor/issues/53
-    * https://stackoverflow.com/questions/59963794/monaco-editor-force-resize-editor
-    * Resize Monaco editor when window resizes
-      * https://dev.to/tepythai/why-100vw-causes-horizontal-scrollbar-4nlm
-      * https://stackoverflow.com/questions/45654579/height-of-the-monaco-editor
-      * automaticLayout: true
-      * https://stackoverflow.com/questions/47017753/monaco-editor-dynamically-resizable
-      * window.onresize = function (){
+  * NOTE on hosting monaco editor in Next.js
+    * // https://stackoverflow.com/questions/59773190/monaco-editor-with-nextjs
+  * x Figure out typing for this.editorRef
+    * x https://dev.to/dinhhuyams/introduction-to-useref-hook-3m7n#:~:text=Well%2C%20the%20difference%20is%20that,full%20lifetime%20of%20the%20component.
+  * x Layout/sizing
+    * x Editor is too tall for its div
+    * x PROMISING: https://github.com/react-monaco-editor/react-monaco-editor/issues/53
+    * x https://stackoverflow.com/questions/59963794/monaco-editor-force-resize-editor
+    * x Resize Monaco editor when window resizes
+      * x https://dev.to/tepythai/why-100vw-causes-horizontal-scrollbar-4nlm
+      * x https://stackoverflow.com/questions/45654579/height-of-the-monaco-editor
+      * x automaticLayout: true
+      * x https://stackoverflow.com/questions/47017753/monaco-editor-dynamically-resizable
+      * x window.onresize = function (){
           editor.layout();
         };
   * Button to revert buffer to analyzed text
@@ -89,7 +91,7 @@
 * AnalyzeMode
   * x Warning: Each child in a list should have a unique "key" prop.
     * x http://localhost:3000/analyze/from/server/subnet2
-  * Remove nodes from application state - graph property has same info
+  * x Remove nodes from application state - graph property has same info
   * Sort nodes by key
   * Nodes shouldn't report paths to themselves
     * not necessarily
@@ -99,8 +101,8 @@
   * . Cascading selectors: upstream change resets downstream selectors
   * Cascading selectors instead of select/master/detail
   * Scrollbars on selectors (or master list)
-  * Render routes
-  * Render paths
+  * . Render routes
+  * . Render paths
   * Render cycles
   * Filter by route
   * Filter by route components
