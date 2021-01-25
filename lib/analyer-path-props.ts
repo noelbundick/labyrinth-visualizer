@@ -31,7 +31,7 @@ export class AnalyzerPathProps {
     } else if (direction === 'from') {
       this.direction = Direction.FROM;
     } else if (direction === undefined) {
-      this.direction = Direction.TO;
+      this.direction = Direction.FROM;
     } else {
       // TODO: don't throw here.
       const message = `Bad direction: "${direction}".`;
@@ -47,10 +47,6 @@ export class AnalyzerPathProps {
     }
 
     this.endKey = end;
-    // if (end !== undefined) {}
-
-    // // this.startKey = start ?? 'internet';
-    // this.endKey = end ?? 'subnet3'; // TODO: handle this case.
   }
 
   to() {
@@ -58,7 +54,6 @@ export class AnalyzerPathProps {
       '/analyze',
       'to',
       this.startKey,
-      // this.endKey
     ].join('/');
   }
 
@@ -67,7 +62,6 @@ export class AnalyzerPathProps {
       '/analyze',
       'from',
       this.startKey,
-      // this.endKey
     ].join('/');
   }
 
@@ -76,7 +70,6 @@ export class AnalyzerPathProps {
       '/analyze',
       this.direction === Direction.FROM ? 'from' : 'to',
       name,
-      // this.endKey
     ].join('/');
   }
 

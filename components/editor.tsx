@@ -2,14 +2,20 @@ import MonacoEditor, {Monaco} from "@monaco-editor/react";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import React from "react";
 import Button from 'react-bootstrap/Button';
-import {connect} from 'react-redux'
+import {connect} from 'react-redux';
+// import ReactResizeDetector from 'react-resize-detector';
+import { withResizeDetector } from 'react-resize-detector';
+import { ComponentsProps } from 'react-resize-detector/build/ResizeDetector';
 import {RouteComponentProps, withRouter} from "react-router";
 import {Dispatch} from 'redux';
 
-import {AnyAction, ApplicationState, analyzeAction} from '../redux';
+import { AnyAction, ApplicationState, analyzeAction } from '../redux';
 
 interface Props extends RouteComponentProps<any> {
+  width: number;
+  height: number;
   text: string;
+  error?: Error;
   analyze: (configYamlText: string) => void;
 }
 
@@ -18,7 +24,7 @@ interface State {
 }
 
 class Editor extends React.Component<Props, State> {
-  editorRef: React.MutableRefObject<monaco.editor.IStandaloneCodeEditor>;//React.RefObject<monaco.editor.IStandaloneCodeEditor>;
+  editorRef: React.MutableRefObject<monaco.editor.IStandaloneCodeEditor | null>;//React.RefObject<monaco.editor.IStandaloneCodeEditor>;
   // editorRef2 = useRef(null);
 
   constructor(props: Props) {
@@ -26,6 +32,7 @@ class Editor extends React.Component<Props, State> {
     this.onAnalyze = this.onAnalyze.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onEditorMount = this.onEditorMount.bind(this);
+    this.onTest = this.onTest.bind(this);
 
     // TODO: sort out Typescript error on the following line.
     this.editorRef = React.createRef();
@@ -34,20 +41,35 @@ class Editor extends React.Component<Props, State> {
     this.state = { analysisIsCurrent: false };
   }
 
+  componentDidUpdate(prevProps: Props) {
+    console.log('componentDidUpdate');
+    const { width, height } = this.props;
+
+    if (width !== prevProps.width || height != prevProps.height) {
+      if (this.editorRef.current) {
+        console.log('  this.editorRef.current.layout()');
+        this.editorRef.current.layout();
+      }
+    }
+  }
+
   componentWillUnmount() {
     console.log('Editor will unmount.');
-    console.log(this.editorRef.current!.getValue());
-    // https://github.com/microsoft/monaco-editor/issues/686
-    const x = this.editorRef.current!.saveViewState();
-    console.log(JSON.stringify(x, null, 2));
+
+    if (this.editorRef.current) {
+      console.log(this.editorRef.current!.getValue());
+      // https://github.com/microsoft/monaco-editor/issues/686
+      const x = this.editorRef.current!.saveViewState();
+      console.log(JSON.stringify(x, null, 2));
+    }
   }
 
   onChange(
     value: string | undefined,
-    ev: monaco.editor.IModelContentChangedEvent,  
+    ev: monaco.editor.IModelContentChangedEvent,
   ) {
     console.log('onChange: this.setState({analysisIsCurrent: false})');
-    this.setState({analysisIsCurrent: false});
+    this.setState({ analysisIsCurrent: false });
   }
 
   onEditorMount(
@@ -55,7 +77,8 @@ class Editor extends React.Component<Props, State> {
     monaco: Monaco,
   ) {
     console.log('Editor mounted');
-    this.editorRef.current = editor; 
+    this.editorRef.current = editor;
+    editor.focus();
   }
 
   onAnalyze() {
@@ -65,17 +88,30 @@ class Editor extends React.Component<Props, State> {
     const yamlText = this.editorRef.current!.getValue();
     this.props.analyze(yamlText);
     console.log('onAnalyze: this.setState({analysisIsCurrent: true})');
-    this.setState({analysisIsCurrent: true});
-    this.props.history.push('/analyze');
-    // TODO: Navigate to Analysis pane?
+    this.setState({ analysisIsCurrent: true });
+
+    // TODO: only navigate if there isn't an error.
+    // this.props.history.push('/analyze');
+  }
+
+  onTest() {
+    console.log('onTest()');
+    if (this.editorRef.current) {
+      this.editorRef.current.layout();
+    }
   }
 
   render() {
     return (
-      <div style={{display: 'flex', flexDirection: 'column', width: '100%', height: '100%'}}>
-        <div style={{display: 'flex', flexDirection: 'row', width: '100%'}}>
-          <div style={{flexGrow: 1}}>
-            <p>Editor instructions go here</p>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        height: '100%'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+          <div style={{ flexGrow: 1 }}>
+            <p>xxEditor instructions go here</p>
             <p>Second line</p>
           </div>
           <div>
@@ -87,26 +123,93 @@ class Editor extends React.Component<Props, State> {
             >
               Analyze
             </Button>
+            <Button
+              className="btn btn-success btn-sm"
+              disabled={this.state.analysisIsCurrent}
+              onClick={this.onTest}
+              title="Test"
+            >
+              Test
+            </Button>
           </div>
         </div>
 
-        <div style = {{flexGrow: 1, overflow: 'hidden'}}>
+        <div style={{ flexGrow: 1, overflow: 'hidden' }}>
           <MonacoEditor
-            options = {{automaticLayout: true}}
             defaultLanguage="yaml"
             defaultValue={this.props.text}
-            onMount = {this.onEditorMount}
-            onChange = {this.onChange}
+            onMount={this.onEditorMount}
+            onChange={this.onChange}
             theme="vs-dark"
           />
+          {/* <ReactResizeDetector handleWidth handleHeight>
+            {({ width, height }) => <div>{`${width}x${height}`}</div>}
+          </ReactResizeDetector>; */}
+          {/* <ReactResizeDetector handleWidth handleHeight>
+            {({ width, height }) => (
+              <MonacoEditor
+                // options={{ automaticLayout: true, wordWrap: 'on' }}
+                defaultLanguage="yaml"
+                defaultValue={this.props.text}
+                onMount={this.onEditorMount}
+                onChange={this.onChange}
+                theme="vs-dark"
+                width={width}
+                height={height}
+              />
+          )}
+          </ReactResizeDetector>; */}
+
+          {/* <MonacoEditor
+            // options={{ automaticLayout: true, wordWrap: 'on' }}
+            defaultLanguage="yaml"
+            defaultValue={this.props.text}
+            onMount={this.onEditorMount}
+            onChange={this.onChange}
+            theme="vs-dark"
+          /> */}
+          {/* <div style = {{width:'100%', height:'100%'}}> */}
+
+
+            {/* <ReactResizeDetector
+              handleWidth
+              handleHeight
+              onResize = {this.onTest}
+            >
+              <MonacoEditor
+                // options={{ automaticLayout: true, wordWrap: 'on' }}
+                defaultLanguage="yaml"
+                defaultValue={this.props.text}
+                onMount={this.onEditorMount}
+                onChange={this.onChange}
+                theme="vs-dark"
+              />
+            </ReactResizeDetector> */}
+
+
+          {/* </div> */}
         </div>
+
+        {renderError(this.props.error)}
       </div>
     );
   }
 }
 
-function mapStateToProps({ configYamlText }: ApplicationState) {
-  return { text: configYamlText };
+function renderError(error?: Error) {
+  if (error) {
+    return (
+      <div>
+        {error.message}
+      </div>
+    );
+  } else {
+    return null;
+  }
+}
+
+function mapStateToProps({ configYamlText, error }: ApplicationState) {
+  return { text: configYamlText, error };
 }
 
 // export default connect(mapStateToProps)(Editor);
@@ -118,4 +221,34 @@ function mapDispatchToProps(dispatch: Dispatch<AnyAction>) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Editor));
+// const EditorWithRouter = withRouter(Editor);
+// const EditorWithDetector = withResizeDetector<Props>(
+//   EditorWithRouter,
+//   {} as ComponentsProps
+// );
+// const EditorConnected = connect(mapStateToProps, mapDispatchToProps)(EditorWithDetector);
+
+const EditorWithRouter = withRouter(Editor);
+const EditorConnected = connect(mapStateToProps, mapDispatchToProps)(EditorWithRouter);
+const EditorWithDetector = withResizeDetector<Props>(
+  EditorConnected,
+  {handleWidth: true, handleHeight: true} as ComponentsProps
+);
+export default EditorWithDetector;
+
+// const EditorWithDetector = withResizeDetector<Props>(
+//   Editor,
+//   {} as ComponentsProps
+// );
+// const EditorConnected = connect(mapStateToProps, mapDispatchToProps)(EditorWithDetector);
+// export default withRouter(EditorConnected);
+
+
+// const EditorConnected = connect(mapStateToProps, mapDispatchToProps)(Editor);
+// const EditorWithDetector = withResizeDetector<Props>(
+//   EditorConnected,
+//   {} as ComponentsProps
+// );
+// export default withRouter(EditorWithDetector);
+
+//export default connect(mapStateToProps, mapDispatchToProps)(withRouter(EditorWithDetector));

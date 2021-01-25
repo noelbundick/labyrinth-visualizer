@@ -29,8 +29,13 @@ module.exports = {
       fs: "empty",
     };
 
+    // config.plugins.push(new MonacoWebpackPlugin());
+
     return config;
   },
+
+  // https://stackoverflow.com/questions/59773190/monaco-editor-with-nextjs
+  // cssLoaderOptions: { url: false }
 };
 
 

@@ -18,6 +18,8 @@
      "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "junk/**/*.ts",
+    "junk/**/*.tsx"
   ]
 }

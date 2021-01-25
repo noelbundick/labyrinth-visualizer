@@ -1,5 +1,19 @@
 # TODO List
 
+* Top
+  * labyrinth-nsg
+    * loaders
+    * validators
+    * utiltities/validate
+    * utilities/yaml_validation_error
+  * Editor buffer persistance across navigation
+  * Errors
+    * Editor update succeeds or errors are reported on editor page
+    * Analysis page does not show build errors - it just shows last correct state or url errors.
+      * State initialize needs to create empty graph
+  * server -> subnet2 -> server should filter out loopback
+  * Filters
+
 * https://stackoverflow.com/questions/42044214/how-can-i-style-active-link-in-react-router-v4
   * If you are encountering an issue where your Nav menu works except it's not updating properly when you click links and the route changes, but it works fine if you press F5, you can do this. This is probably occurring because you are using Redux which has a shouldComponentUpdate Lifecycle method on its connect function. You probably have your Nav component wrapped in connect. This is all good. shouldComponentUpdate is what is ruining your life.
 * Navigation structure
@@ -42,6 +56,8 @@
     * https://dev.to/dinhhuyams/introduction-to-useref-hook-3m7n#:~:text=Well%2C%20the%20difference%20is%20that,full%20lifetime%20of%20the%20component.
   * Layout/sizing
     * Editor is too tall for its div
+    * PROMISING: https://github.com/react-monaco-editor/react-monaco-editor/issues/53
+    * https://stackoverflow.com/questions/59963794/monaco-editor-force-resize-editor
     * Resize Monaco editor when window resizes
       * https://dev.to/tepythai/why-100vw-causes-horizontal-scrollbar-4nlm
       * https://stackoverflow.com/questions/45654579/height-of-the-monaco-editor
@@ -73,6 +89,8 @@
 * AnalyzeMode
   * x Warning: Each child in a list should have a unique "key" prop.
     * x http://localhost:3000/analyze/from/server/subnet2
+  * Remove nodes from application state - graph property has same info
+  * Sort nodes by key
   * Nodes shouldn't report paths to themselves
     * not necessarily
     * server -> subnet2 -> server should filter out loopback
