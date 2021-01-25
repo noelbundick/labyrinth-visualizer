@@ -43,11 +43,11 @@ class Editor extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    console.log('componentDidUpdate');
+    // console.log('componentDidUpdate');
 
     if (this.state.navigate && !this.props.error) {
-      console.log(`  this.state.navigate: ${this.state.navigate}`);
-      console.log(`  this.props.error: ${this.props.error}`);
+      // console.log(`  this.state.navigate: ${this.state.navigate}`);
+      // console.log(`  this.props.error: ${this.props.error}`);
       this.props.history.push('/analyze');
       this.setState({
         ...this.state,
@@ -61,7 +61,7 @@ class Editor extends React.Component<Props, State> {
     value: string | undefined,
     ev: monaco.editor.IModelContentChangedEvent,
   ) {
-    console.log('onChange: this.setState({analysisIsCurrent: false})');
+    // console.log('onChange: this.setState({analysisIsCurrent: false})');
     this.setState({ analysisIsCurrent: false });
   }
 
@@ -157,14 +157,14 @@ function initializeModel(monaco: Monaco, path: string, value: string) {
 
 function renderError(error?: Error) {
   if (error) {
-    console.log('rendering error');
+    // console.log('rendering error');
     return (
       <div style={{maxHeight: '30vh', overflow: 'scroll'}}>
         {error.message}
       </div>
     );
   } else {
-    console.log('rendering ok');
+    // console.log('rendering ok');
     return null;
   }
 }

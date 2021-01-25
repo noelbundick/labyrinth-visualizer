@@ -1,22 +1,28 @@
 # TODO List
 
 * Top
+  * svg network diagram for demo
   * labyrinth-nsg
+    * consider making NodeSpec.name default to NodeSpec.key
     * x loaders
     * x validators
     * x utiltities/validate
     * x utilities/yaml_validation_error
-    * consider making NodeSpec.name default to NodeSpec.key
   * x Editor buffer persistance across navigation
+  * Filters
+  * Bug: editor analyze button enabled on startup - should be disabled
+  * Reduce console spew
+  * Rename editor2.tsx
+  * Rename config/edit to network
+  * Rename config.yaml and /config to network.yaml and /network
   * Errors
     * Better error descriptions
     * Errors should indicate filename
     * x Editor update succeeds or errors are reported on editor page
     * Analysis page does not show build errors - it just shows last correct state or url errors.
       * State initialize needs to create empty graph
-  * server -> subnet2 -> server should filter out loopback
-  * Filters
-  * Ability to edit UniverseSpec
+  * x server -> subnet2 -> server should filter out loopback
+  * x Ability to edit UniverseSpec
 
 * https://stackoverflow.com/questions/42044214/how-can-i-style-active-link-in-react-router-v4
   * If you are encountering an issue where your Nav menu works except it's not updating properly when you click links and the route changes, but it works fine if you press F5, you can do this. This is probably occurring because you are using Redux which has a shouldComponentUpdate Lifecycle method on its connect function. You probably have your Nav component wrapped in connect. This is all good. shouldComponentUpdate is what is ruining your life.

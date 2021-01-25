@@ -1,7 +1,6 @@
-import {firewallSpec, loadYamlNodeSpecs, loadYamlUniverseSpec} from 'labyrinth-nsg';
 import {Reducer} from 'redux';
 
-import {createWorld} from '../lib';
+import {createWorldFromYaml} from '../lib';
 
 import {
   ActionType,
@@ -33,12 +32,9 @@ function applyAnalyze(
   { configYamlText, universeYamlText }: AnalyzeAction
 ): ApplicationState {
 
-  // TODO: put this all in a function wrapped in a try/catch.
-  // Share with initialState()
   try {
-    const universeSpec = loadYamlUniverseSpec(universeYamlText);
-    const graphSpec = loadYamlNodeSpecs(configYamlText);
-    const world = createWorld(universeSpec, graphSpec);
+    const world = createWorldFromYaml(universeYamlText, configYamlText);
+
     return {
       ...appState,
       configYamlText,

@@ -1,0 +1,40 @@
+- name: internet
+  key: internet
+  endpoint: true
+  rules:
+    - destination: gateway
+- name: gateway
+  key: gateway
+  rules:
+    - destination: subnet1
+      destinationIp: 10.0.0.0/8
+    - destination: subnet2
+      destinationIp: 10.0.0.0/7
+- name: subnet1
+  key: subnet1
+  rules:
+    - destination: subnet2
+      destinationPort: '80'
+    - destination: subnet3
+- name: subnet2
+  key: subnet2
+  rules:
+    - destination: server
+      protocol: tcp
+    - destination: gateway
+      destinationIp: except 10.0.0.0/7
+- name: subnet3
+  key: subnet3
+  rules: []
+- name: server
+  key: server
+  endpoint: true
+  rules:
+    - destination: subnet2
+      destinationIp: except loopback
+- name: server2
+  key: server2
+  endpoint: true
+  rules:
+    - destination: subnet2
+      destinationIp: except loopback
