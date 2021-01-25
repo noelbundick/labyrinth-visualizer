@@ -19,6 +19,9 @@ class NavBar extends React.Component<RouteComponentProps<any>> {
             <Nav.Link to='/' eventKey="" as={Link}>Home</Nav.Link>
           </Nav.Item>
           <Nav.Item>
+            <Nav.Link to='/universe' eventKey="universe" as={Link}>Universe</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
             <Nav.Link to='/edit' eventKey="edit" as={Link}>Configure</Nav.Link>
           </Nav.Item>
           <StatefulLink mode="analyze">Analyze</StatefulLink>

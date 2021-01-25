@@ -11,6 +11,7 @@ import {Dispatch} from 'redux';
 import { AnyAction, ApplicationState, analyzeAction } from '../redux';
 
 interface Props extends RouteComponentProps<any> {
+  path: string,
   width: number;
   height: number;
   text: string;
@@ -172,6 +173,39 @@ function mapDispatchToProps(dispatch: Dispatch<AnyAction>) {
   };
 }
 
+// Works
+// const EditorWithResize = withResizeDetector(
+//   connect(mapStateToProps, mapDispatchToProps)(
+//     withRouter(Editor)
+//   ),
+//   {handleWidth: true, handleHeight: true} as ComponentsProps
+// );
+
+// Fails
+// Argument of type 'ComponentClass<Pick<Props, "path" | "width" | "height" | "text" | "error" | "analyze">, any> & WithRouterStatics<typeof Editor>' is not assignable to parameter of type 'ComponentType<Pick<Props, "path" | "width" | "height" | "text" | "error" | "analyze" | "history" | "location" | "match" | "staticContext">>'.
+//   Type 'ComponentClass<Pick<Props, "path" | "width" | "height" | "text" | "error" | "analyze">, any> & WithRouterStatics<typeof Editor>' is not assignable to type 'ComponentClass<Pick<Props, "path" | "width" | "height" | "text" | "error" | "analyze" | "history" | "location" | "match" | "staticContext">, any>'.
+//     Construct signature return types 'Component<Pick<Props, "path" | "width" | "height" | "text" | "error" | "analyze">, any, any>' and 'Component<Pick<Props, "path" | "width" | "height" | "text" | "error" | "analyze" | "history" | "location" | "match" | "staticContext">, any, any>' are incompatible.
+//       The types of 'props' are incompatible between these types.
+//         Type 'Readonly<Pick<Props, "path" | "width" | "height" | "text" | "error" | "analyze">> & Readonly<{ children?: ReactNode; }>' is not assignable to type 'Readonly<Pick<Props, "path" | "width" | "height" | "text" | "error" | "analyze" | "history" | "location" | "match" | "staticContext">> & Readonly<{ children?: ReactNode; }>'.
+//           Type 'Readonly<Pick<Props, "path" | "width" | "height" | "text" | "error" | "analyze">> & Readonly<{ children?: ReactNode; }>' is missing the following properties from type 'Readonly<Pick<Props, "path" | "width" | "height" | "text" | "error" | "analyze" | "history" | "location" | "match" | "staticContext">>': history, location, match
+// const EditorWithResize = connect(mapStateToProps, mapDispatchToProps)(
+//   withResizeDetector( 
+//     withRouter(Editor),
+//     {handleWidth: true, handleHeight: true} as ComponentsProps
+//   )
+// );
+
+// Fails
+// const EditorWithResize = connect(mapStateToProps, mapDispatchToProps)(
+//   withRouter(
+//     withResizeDetector(
+//       Editor,
+//       {handleWidth: true, handleHeight: true} as ComponentsProps
+//     )
+//   )
+// );
+
+// Works
 const EditorWithRouter = withRouter(Editor);
 const EditorConnected = connect(mapStateToProps, mapDispatchToProps)(EditorWithRouter);
 const EditorWithResize = withResizeDetector<Props>(

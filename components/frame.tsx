@@ -7,7 +7,8 @@ import {
 } from "react-router-dom";
 
 import Analyze from './analyze-mode';
-import Editor from './editor';
+// import Editor from './editor';
+import Editor from './editor2';
 import NavBar from './nav-bar';
 import NotFound from './page-not-found';
 import Welcome from './welcome-mode';
@@ -17,9 +18,22 @@ import EditorWithResize from './editor';
 class FrameBody extends React.Component<RouteComponentProps<any>> {
   render() {
     console.log(JSON.stringify(this.props));
-    const display = (
-      this.props.location.pathname === '/edit' ? 'block' : 'none'
-    );
+
+    let display = 'none';
+    let path = 'config.yaml';
+
+    if (this.props.location.pathname === '/edit') {
+      display = 'block';
+    } else if (this.props.location.pathname === '/universe') {
+      display = 'block';
+      path = 'universe.yaml';
+    } else {
+      display = 'none';
+    }
+
+    // const display = (
+    //   this.props.location.pathname === '/edit' ? 'block' : 'none'
+    // );
 
     return (
       <div style={{ flexGrow: 1, overflow: 'hidden' }}>
@@ -36,9 +50,9 @@ class FrameBody extends React.Component<RouteComponentProps<any>> {
             ]}
             component={Analyze}
           />
+          <Route path="/universe">
+          </Route>
           <Route path="/edit">
-            {/* <div>Editor placeholder</div> */}
-            {/* <Editor /> */}
           </Route>
           <Route exact path="/">
             <Welcome />
@@ -53,7 +67,8 @@ class FrameBody extends React.Component<RouteComponentProps<any>> {
           width: '100%',
           height: '100%'
         }}>
-          <Editor/>
+          <Editor path={path}/>
+          {/* <Editor path/> */}
         </div>
       </div>
     );

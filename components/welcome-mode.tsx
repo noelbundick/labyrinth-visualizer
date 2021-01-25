@@ -1,3 +1,8 @@
 export default function WelcomeMode() {
-  return <h2>Welcome Mode</h2>;
+  return (
+    <div>
+      <h2>Welcome Labyrinth</h2>
+      <p>Instructions go here.</p>
+    </div>
+  );
 }

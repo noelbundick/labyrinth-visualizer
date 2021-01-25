@@ -4,6 +4,7 @@ import { firewallSpec, loadYamlNodeSpecs, NodeSpec} from 'labyrinth-nsg';
 import { createWorld, World } from '../lib';
 
 export interface ApplicationState {
+  universeYamlText: string;
   configYamlText: string;
   world?: World;
   error?: Error;
@@ -94,15 +95,22 @@ export function initialState(): ApplicationState {
   ];
 
   const configYamlText = yaml.dump(nodes);
+  const universeYamlText = yaml.dump(firewallSpec);
 
   // TODO: put this all in a function wrapped in a try/catch.
   // Share with applyAnalyze()
   try {
     const graphSpec = loadYamlNodeSpecs(configYamlText);
     const world = createWorld(firewallSpec, graphSpec);
-    return {configYamlText, world, error: undefined};
+    return {
+      universeYamlText,
+      configYamlText,
+      world,
+      error: undefined
+    };
   } catch (error) {
     return {
+      universeYamlText,
       configYamlText,
       error: error as Error
     };

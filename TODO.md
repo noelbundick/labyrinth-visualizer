@@ -9,6 +9,8 @@
     * consider making NodeSpec.name default to NodeSpec.key
   * x Editor buffer persistance across navigation
   * Errors
+    * Better error descriptions
+    * Errors should indicate filename
     * x Editor update succeeds or errors are reported on editor page
     * Analysis page does not show build errors - it just shows last correct state or url errors.
       * State initialize needs to create empty graph
@@ -73,13 +75,13 @@
   * Button to revert buffer to analyzed text
   * Load text
   * Save text
-  * Save and restore editor text and state across navigation
-    * . componentWillUnmount()
-    * ALTERNATE APPROACH: https://stackoverflow.com/questions/50777333/react-hide-a-component-on-a-specific-route
+  * x Save and restore editor text and state across navigation
+    * x componentWillUnmount()
+    * x ALTERNATE APPROACH: https://stackoverflow.com/questions/50777333/react-hide-a-component-on-a-specific-route
   * x Save/Update/Analyze button
     * x Dirty buffer detection
-    * . Router navigate to analyze on success
-    * Only navigate on success.
+    * x Router navigate to analyze on success
+    * x Only navigate on success.
   * Error panel
     * Addition of splitter will make editor resizing more important
   * Help pane
