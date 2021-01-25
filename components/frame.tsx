@@ -7,13 +7,12 @@ import {
 } from "react-router-dom";
 
 import Analyze from './analyze-mode';
-// import Editor from './editor';
+// import Editor from './editor'; // DEPRECATED
 import Editor from './editor2';
 import NavBar from './nav-bar';
 import NotFound from './page-not-found';
 import Welcome from './welcome-mode';
 import { RouteComponentProps, withRouter } from "react-router";
-import EditorWithResize from './editor';
 
 class FrameBody extends React.Component<RouteComponentProps<any>> {
   render() {
@@ -30,10 +29,6 @@ class FrameBody extends React.Component<RouteComponentProps<any>> {
     } else {
       display = 'none';
     }
-
-    // const display = (
-    //   this.props.location.pathname === '/edit' ? 'block' : 'none'
-    // );
 
     return (
       <div style={{ flexGrow: 1, overflow: 'hidden' }}>
@@ -68,7 +63,6 @@ class FrameBody extends React.Component<RouteComponentProps<any>> {
           height: '100%'
         }}>
           <Editor path={path}/>
-          {/* <Editor path/> */}
         </div>
       </div>
     );

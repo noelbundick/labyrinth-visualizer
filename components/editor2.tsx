@@ -3,21 +3,17 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import React from "react";
 import Button from 'react-bootstrap/Button';
 import {connect} from 'react-redux';
-import { withResizeDetector } from 'react-resize-detector';
 import ReactResizeDetector from 'react-resize-detector';
-import { ComponentsProps } from 'react-resize-detector/build/ResizeDetector';
 import {RouteComponentProps, withRouter} from "react-router";
 import {Dispatch} from 'redux';
 import { AnyAction, ApplicationState, analyzeAction } from '../redux';
 
 interface Props extends RouteComponentProps<any> {
   path: string,
-  // width: number;
-  // height: number;
   universeYamlText: string,
   configYamlText: string;
   error?: Error;
-  analyze: (configYamlText: string) => void;
+  analyze: (universeYamlText: string, configYamlText: string) => void;
 }
 
 interface State {
@@ -48,14 +44,6 @@ class Editor extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     console.log('componentDidUpdate');
-    // const { width, height } = this.props;
-
-    // if (width !== prevProps.width || height != prevProps.height) {
-    //   if (this.editorRef.current) {
-    //     console.log('  this.editorRef.current.layout()');
-    //     this.editorRef.current.layout();
-    //   }
-    // }
 
     if (this.state.navigate && !this.props.error) {
       console.log(`  this.state.navigate: ${this.state.navigate}`);
@@ -68,17 +56,6 @@ class Editor extends React.Component<Props, State> {
       });
     }
   }
-
-  // componentWillUnmount() {
-  //   console.log('Editor will unmount.');
-
-  //   if (this.editorRef.current) {
-  //     console.log(this.editorRef.current!.getValue());
-  //     // https://github.com/microsoft/monaco-editor/issues/686
-  //     const x = this.editorRef.current!.saveViewState();
-  //     console.log(JSON.stringify(x, null, 2));
-  //   }
-  // }
 
   onChange(
     value: string | undefined,
@@ -102,34 +79,24 @@ class Editor extends React.Component<Props, State> {
   }
 
   onAnalyze() {
-    // const yamlText = this.editorRef.current!.getValue();
-    // this.editorRef.current!
     if (this.monacoRef.current) {
-      const yamlText = getValue(this.monacoRef.current, 'config.yaml');
-      this.props.analyze(yamlText);
+      const universeYamlText = getValue(this.monacoRef.current, 'universe.yaml');
+      const configYamlText = getValue(this.monacoRef.current, 'config.yaml');
+      this.props.analyze(universeYamlText, configYamlText);
       console.log('onAnalyze: this.setState({analysisIsCurrent: true})');
       this.setState({
-        // analysisIsCurrent: true,
         navigate: true
       });
     }
-
-    // TODO: only navigate if there isn't an error.
-    // this.props.history.push('/analyze');
   }
 
+  // TODO: REVIEW: how is Monaco resizing, given that this method
+  // does nothing? Why no this.editorRef.current.layout()?
   onResize(width: number, height: number) {
     console.log(`onResize(${width}, ${height})`);
   }
 
   render() {
-    console.log(`xxxxxxxxxxxxx ${this.props.path}`);
-    let defaultValue = this.props.universeYamlText;
-    if (this.props.path === 'config.yaml') {
-      defaultValue = this.props.configYamlText;
-    }
-    console.log(`yyyyyyyyyyyy ${defaultValue}`);
-
     return (
       <div style={{
         display: 'flex',
@@ -159,8 +126,6 @@ class Editor extends React.Component<Props, State> {
         <ReactResizeDetector handleWidth handleHeight onResize={this.onResize}>
           <div style={{ flexGrow: 1, overflow: 'hidden' }}>
             <MonacoEditor
-              // defaultLanguage="yaml"
-              // defaultValue={defaultValue}
               onMount={this.onEditorMount}
               onChange={this.onChange}
               theme="vs-dark"
@@ -181,10 +146,6 @@ function getValue(monaco: Monaco, path: string): string {
 }
 
 function initializeModel(monaco: Monaco, path: string, value: string) {
-// function initializeModel(
-//   editor: monaco.editor.IStandaloneCodeEditor,
-//   path: string, value: string
-// ) {
   const model = monaco.editor.getModel(monaco.Uri.parse(path));
 
   if (model) {
@@ -192,12 +153,6 @@ function initializeModel(monaco: Monaco, path: string, value: string) {
   } else {
     monaco.editor.createModel(value, 'yaml', monaco.Uri.parse(path))
   }
-
-  // monaco.editor.createModel(
-  //   'this is the config',
-  //   'yaml',
-  //   monaco.Uri.parse('universe.yaml')
-  // );
 }
 
 function renderError(error?: Error) {
@@ -224,13 +179,16 @@ function mapStateToProps({ universeYamlText, configYamlText, error }: Applicatio
 
 function mapDispatchToProps(dispatch: Dispatch<AnyAction>) {
   return {
-    analyze: (configYamlText: string) => {
-      dispatch(analyzeAction(configYamlText));
+    analyze: (universeYamlText: string, configYamlText: string) => {
+      dispatch(analyzeAction(universeYamlText, configYamlText));
     },
   };
 }
 
 // Works
 const EditorWithRouter = withRouter(Editor);
-const EditorConnected = connect(mapStateToProps, mapDispatchToProps)(EditorWithRouter);
+const EditorConnected = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(EditorWithRouter);
 export default EditorConnected;

@@ -6,12 +6,17 @@ export enum ActionType {
 export interface AnalyzeAction {
   type: ActionType.ANALYZE;
   configYamlText: string;
+  universeYamlText: string;
 };
 
-export function analyzeAction(configYamlText: string): AnalyzeAction {
+export function analyzeAction(
+  universeYamlText: string,
+  configYamlText: string
+): AnalyzeAction {
   return {
     type: ActionType.ANALYZE,
-    configYamlText
+    configYamlText,
+    universeYamlText
   }
 }
 
