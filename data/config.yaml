@@ -1,40 +1,67 @@
+# ISSUES:
+#   Case http://localhost:3000/analyze/from/gateway/gateway
+#   gives (universe), but would expect destination ip: 10.1.1.1
+#   Think this might have to do with propagation starting with
+#   (universe)
+#
+#   Case http://localhost:3000/analyze/from/internet/
+#   gives no routes, which seems correct.
 - name: internet
   key: internet
   endpoint: true
   rules:
     - destination: gateway
+      destinationIp: 10.0.0.0/15
 - name: gateway
   key: gateway
   rules:
+    - destination: internet
+      destinationIp: except 10.0.0.0/15
+    - destination: router
+- name: router
+  key: router
+  rules:
+    - destination: server1
+      destinationIp: 10.0.0.1
     - destination: subnet1
-      destinationIp: 10.0.0.0/8
+      destinationIp: 10.0.0.0/16
     - destination: subnet2
-      destinationIp: 10.0.0.0/7
+      destinationIp: 10.1.0.0/16
+    - destination: gateway
 - name: subnet1
   key: subnet1
   rules:
-    - destination: subnet2
-      destinationPort: '80'
-    - destination: subnet3
+    - destination: router
+      destinationIp: except 10.0.0.0/16
+    - destination: server1
+- name: server1
+  key: server1
+  endpoint: true
+  rules:
+    - destination: subnet1
+      destinationIp: except loopback
 - name: subnet2
   key: subnet2
   rules:
-    - destination: server
-      protocol: tcp
+    # Route to gateway should cause a cycle
     - destination: gateway
-      destinationIp: except 10.0.0.0/7
-- name: subnet3
-  key: subnet3
-  rules: []
-- name: server
-  key: server
-  endpoint: true
-  rules:
-    - destination: subnet2
-      destinationIp: except loopback
+      destinationIp: 10.1.1.1
+    - destination: router
+      destinationIp: except 10.1.0.0/16
+    - destination: server2
 - name: server2
   key: server2
   endpoint: true
   rules:
     - destination: subnet2
       destinationIp: except loopback
+# router3 is not reachable from any other node
+- name: router3
+  key: router3
+  rules:
+    - destination: server3
+      protocol: tcp
+- name: server3
+  key: server3
+  endpoint: true
+  rules: []

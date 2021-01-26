@@ -1,8 +1,9 @@
-import {FlowNode, Graph, NodeSpec, Path} from 'labyrinth-nsg';
+import { Cycle, FlowNode, Graph, NodeSpec, Path } from 'labyrinth-nsg';
 import React from "react";
 import Dropdown from 'react-bootstrap/Dropdown';
 import Nav from 'react-bootstrap/Nav';
 import {GoArrowRight} from 'react-icons/go';
+import {GrNetwork, GrServer} from 'react-icons/gr';
 import {connect} from 'react-redux'
 import {RouteComponentProps, withRouter} from "react-router";
 import {Link, Redirect} from 'react-router-dom';
@@ -37,13 +38,13 @@ class AnalyzeMode extends React.Component<Props> {
       const path = this.props.location.pathname;
       const a = new AnalyzerPathProps(path, nodes);
       console.log(a.path());
-  
+
       if (a.redirect) {
         console.log(`Redirecting from ${path} to ${a.path()}`)
-        return <Redirect to={a.path()}/>
+        return <Redirect to={a.path()} />
       } else {
         return this.renderPage(a, nodes, graph);
-      }  
+      }
     }
   }
 
@@ -65,7 +66,7 @@ class AnalyzeMode extends React.Component<Props> {
   renderUnknownNodeError(a: AnalyzerPathProps, nodes: NodeSpec[]) {
     return (
       <div>
-        { renderRouteSelectors(a, nodes) }
+        { renderRouteSelectors(a, nodes)}
         <div>Unknown node {a.startKey}</div>
       </div>
     )
@@ -73,7 +74,7 @@ class AnalyzeMode extends React.Component<Props> {
 
   renderValidPage(a: AnalyzerPathProps, nodes: NodeSpec[], graph: Graph) {
     // TODO: cache this computation. Only recompute if inputs change.
-    const {cycles, flows} = graph.analyze(a.startKey, a.direction === Direction.FROM);
+    const { cycles, flows } = graph.analyze(a.startKey, a.direction === Direction.FROM);
 
     // Only render flows for reachable nodes.
     const filteredFlows = flows.filter(
@@ -82,8 +83,8 @@ class AnalyzeMode extends React.Component<Props> {
 
     return (
       <div>
-        { renderRouteSelectors(a, nodes) }
-        { renderExpanation(a, filteredFlows) }
+        { renderRouteSelectors(a, nodes)}
+        { renderExpanation(a, filteredFlows)}
 
         <div
           style={{
@@ -92,8 +93,8 @@ class AnalyzeMode extends React.Component<Props> {
             width: '100%'
           }}
         >
-          { this.renderMaster(a, filteredFlows) }
-          { this.renderDetail(a, graph, filteredFlows) }
+          {this.renderMaster(a, filteredFlows)}
+          {this.renderDetail(a, graph, filteredFlows, cycles)}
         </div>
       </div>
     );
@@ -101,7 +102,7 @@ class AnalyzeMode extends React.Component<Props> {
 
   renderMaster(a: AnalyzerPathProps, flows: FlowNode[]) {
     return (
-      <div style={{backgroundColor: 'lightgray'}}>
+      <div style={{ backgroundColor: 'lightgray' }}>
         <Nav
           className="flex-column"
           variant="pills"
@@ -113,7 +114,7 @@ class AnalyzeMode extends React.Component<Props> {
               const key = flow.node.key;
               const path = a.end(key);
               return (
-                <Nav.Item key={key} style={{paddingTop: '0', paddingBottom: '0'}}>
+                <Nav.Item key={key} style={{ paddingTop: '0', paddingBottom: '0' }}>
                   <Nav.Link
                     to={path}
                     eventKey={key}
@@ -124,6 +125,10 @@ class AnalyzeMode extends React.Component<Props> {
                       paddingBottom: '0'
                     }}
                   >
+                    <GrServer style={{
+                      visibility: flow.node.isEndpoint ? 'visible' : 'hidden',
+                      marginRight: '5px'
+                    }} />
                     {key}
                   </Nav.Link>
                 </Nav.Item>
@@ -135,7 +140,14 @@ class AnalyzeMode extends React.Component<Props> {
     );
   }
 
-  renderDetail(a: AnalyzerPathProps, graph: Graph, flows: FlowNode[]) {
+  renderDetail(
+    a: AnalyzerPathProps,
+    graph: Graph,
+    flows: FlowNode[],
+    cycles: Cycle[]
+  ) {
+    console.log('cycles:');
+    console.log(JSON.stringify(cycles, null, 2));
     if (!a.endKey) {
       return <div></div>
     } else {
@@ -144,13 +156,14 @@ class AnalyzeMode extends React.Component<Props> {
         return <div>Unknown node "{a.endKey}"</div>
       } else {
         return (
-          <div style={{flexGrow: 1, backgroundColor: 'lightblue'}}>
+          <div style={{ flexGrow: 1, backgroundColor: 'lightblue' }}>
+            {renderCycles(a, graph, cycles, a.direction === Direction.FROM)}
             <b>
               {
                 // TODO: handle case where there are no routes
-                (a.direction === Direction.TO) ? 
-                `Routes from ${a.endKey} to ${a.startKey}` :
-                `Routes from ${a.startKey} to ${a.endKey}`
+                (a.direction === Direction.TO) ?
+                  `Routes from ${a.endKey} to ${a.startKey}` :
+                  `Routes from ${a.startKey} to ${a.endKey}`
               }
             </b>
             <div>
@@ -162,9 +175,9 @@ class AnalyzeMode extends React.Component<Props> {
             <b>
               {
                 // TODO: handle case where there are no paths
-                (a.direction === Direction.TO) ? 
-                `Paths from ${a.endKey} to ${a.startKey}` :
-                `Paths from ${a.startKey} to ${a.endKey}`
+                (a.direction === Direction.TO) ?
+                  `Paths from ${a.endKey} to ${a.startKey}` :
+                  `Paths from ${a.startKey} to ${a.endKey}`
               }
             </b>
             <div>
@@ -236,7 +249,7 @@ function renderRouteSelectors(a: AnalyzerPathProps, nodes: NodeSpec[]) {
       </span>
       <Dropdown>
         <Dropdown.Toggle variant="light" id="dropdown-basic">
-          { a.direction === Direction.TO ? 'To' : 'From' }
+          {a.direction === Direction.TO ? 'To' : 'From'}
         </Dropdown.Toggle>
 
         <Dropdown.Menu>
@@ -246,7 +259,7 @@ function renderRouteSelectors(a: AnalyzerPathProps, nodes: NodeSpec[]) {
       </Dropdown>
       <Dropdown>
         <Dropdown.Toggle variant="light" id="dropdown-basic">
-          { a.startKey }
+          {a.startKey}
         </Dropdown.Toggle>
 
         <Dropdown.Menu>
@@ -268,6 +281,12 @@ function renderPath(
   path: Path,
   outbound: boolean
 ) {
+  // if (path.routes.isEmpty()) {
+  //   return null;
+  // }
+
+  console.log(JSON.stringify(path, null, 2));
+
   const keys: string[] = [];
   let p: Path | undefined = path;
 
@@ -286,14 +305,87 @@ function renderPath(
   const elements: JSX.Element[] = [];
   for (const [i, key] of keys.entries()) {
     if (i !== 0) {
-      elements.push(<GoArrowRight key={'_arrow' + i}/>);
+      elements.push(<GoArrowRight key={'_arrow' + i} />);
     }
     elements.push(<Link to={key} key={key + i.toString()}>{key}</Link>);
   }
 
+  elements.push(
+    <pre key={'xyz'}>
+      {path.routes.format({ prefix: '  ' })}
+    </pre>
+  );
+
   return elements;
 }
 
+function renderCycles(
+  a: AnalyzerPathProps,
+  graph: Graph,
+  cycles: Cycle[],
+  outbound: boolean
+) {
+  if (cycles.length === 0) {
+    return null;
+  }
+
+  return (
+    <div style={{ backgroundColor: 'lightpink' }}>
+      <b>
+        {
+          (a.direction === Direction.TO) ?
+            `Cycles to ${a.startKey}` :
+            `Cycles from ${a.startKey}`
+        }
+      </b>
+      <div>
+        {
+          cycles.map((path, index) => (
+            <div key={index}>
+              {renderOneCycle(a, graph, path, outbound)}
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  );
+
+}
+
+function renderOneCycle(
+  a: AnalyzerPathProps,
+  graph: Graph,
+  cycle: Cycle,
+  outbound: boolean
+) {
+  const keys: string[] = [];
+
+  if (outbound) {
+    for (const p of cycle) {
+      keys.unshift(graph.nodes[p.node].key);
+    }
+  } else {
+    for (const p of cycle) {
+      keys.push(graph.nodes[p.node].key);
+    }
+  }
+
+  const elements: JSX.Element[] = [];
+  for (const [i, key] of keys.entries()) {
+    if (i !== 0) {
+      elements.push(<GoArrowRight key={'_arrow' + i} />);
+    }
+    elements.push(<Link to={key} key={key + i.toString()}>{key}</Link>);
+  }
+
+  elements.push(
+    <pre key={'xyz'}>
+      {cycle[0].routes.format({ prefix: '  ' })}
+    </pre>
+  );
+
+  return elements;
+}
 
 function mapStateToProps({ world }: ApplicationState) {
   return { world };

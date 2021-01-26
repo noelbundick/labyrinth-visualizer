@@ -1,6 +1,14 @@
 # TODO List
 
 * Top
+  * AnalyzerPathProps.isOutbound()
+  * Detect unreachable nodes/partitions
+  * Arrows on cycles may be going in the wrong direction
+  * Consider whether to sort node alphabetically
+  * Consider endpoint icon for nodes
+  * path accordian to show routes
+  * cycles:
+    * http://localhost:3000/analyze/from/server2/subnet2
   * svg network diagram for demo
   * labyrinth-nsg
     * consider making NodeSpec.name default to NodeSpec.key
