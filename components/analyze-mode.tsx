@@ -23,7 +23,10 @@ class AnalyzeMode extends React.Component<Props> {
   onSelect = (detailKey: string | null) => {
     console.log(`onSelect(${detailKey})`);
     const history = this.props.history;
-    const a = new AnalyzerPathProps(
+
+    // TODO: REVIEW: is there any way we can avoid this seemingly
+    // redundant call to AnalyzerPathProps.create()?
+    const a = AnalyzerPathProps.create(
       this.props.location.pathname,
       this.props.world!.graph.nodes.map(node => node.spec)
     );
@@ -40,7 +43,7 @@ class AnalyzeMode extends React.Component<Props> {
       const graph = world.graph;
       const nodes = graph.nodes.map(node => node.spec);
       const path = this.props.location.pathname;
-      const a = new AnalyzerPathProps(path, nodes);
+      const a = AnalyzerPathProps.create(path, nodes);
       console.log(a.path());
 
       if (a.redirect) {
@@ -53,10 +56,21 @@ class AnalyzeMode extends React.Component<Props> {
   }
 
   renderNoGraphError() {
-    return <div>
-      One or more errors in the network configuration are preventing analysis.
-      Return to the <Link to='/edit'>Configuration Pane</Link> to fix the errors.
-    </div>
+    return (
+      <div style={{
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+        <div style={{fontSize: '16pt'}}>
+          One or more errors in the network configuration are preventing analysis.
+          Return to the <Link to='/edit'>Configuration Pane</Link> to fix the errors.
+        </div>
+      </div>
+    )
   }
 
   renderPage(a: AnalyzerPathProps, nodes: NodeSpec[], graph: Graph) {
@@ -84,7 +98,7 @@ class AnalyzeMode extends React.Component<Props> {
   renderValidPage(a: AnalyzerPathProps, nodes: NodeSpec[], graph: Graph) {
     // TODO: cache this computation. Only recompute if inputs change.
     // TODO: surround with try/catch block
-    const { cycles, flows } = graph.analyze(a.startKey, a.direction === Direction.FROM);
+    const { cycles, flows } = graph.analyze(a.startKey, a.isOutbound);
 
     // Only render flows for reachable nodes.
     const filteredFlows = flows.filter(
@@ -168,13 +182,13 @@ class AnalyzeMode extends React.Component<Props> {
       } else {
         return (
           <div style={{ flexGrow: 1, backgroundColor: 'lightblue' }}>
-            {renderCycles(a, graph, cycles, a.direction === Direction.FROM)}
+            {renderCycles(a, graph, cycles, a.isOutbound)}
             <b>
               {
                 // TODO: handle case where there are no routes
-                (a.direction === Direction.TO) ?
-                  `Routes from ${a.endKey} to ${a.startKey}` :
-                  `Routes from ${a.startKey} to ${a.endKey}`
+                a.isOutbound ?
+                `Routes from ${a.startKey} to ${a.endKey}` :
+                `Routes from ${a.endKey} to ${a.startKey}`
               }
             </b>
             <div>
@@ -186,16 +200,16 @@ class AnalyzeMode extends React.Component<Props> {
             <b>
               {
                 // TODO: handle case where there are no paths
-                (a.direction === Direction.TO) ?
-                  `Paths from ${a.endKey} to ${a.startKey}` :
-                  `Paths from ${a.startKey} to ${a.endKey}`
+                a.isOutbound ?
+                  `Paths from ${a.startKey} to ${a.endKey}` :
+                  `Paths from ${a.endKey} to ${a.startKey}`
               }
             </b>
             <div>
               {
                 flow.paths.map((path, index) => (
                   <div key={index}>
-                    {renderPath(a, graph, path, a.direction === Direction.FROM)}
+                    {renderPath(a, graph, path, a.isOutbound)}
                   </div>
                 ))
               }
@@ -212,31 +226,31 @@ function renderExpanation(
   flows: FlowNode[]
 ) {
   if (flows.length === 0) {
-    if (a.direction === Direction.TO) {
-      return (
-        <div>
-          There are no nodes with routes to the <b>{a.startKey}</b> node.
-        </div>
-      )
-    } else {
+    if (a.isOutbound) {
       return (
         <div>
           The <b>{a.startKey}</b> node has no routes to other nodes.
         </div>
       )
-    }
-  } else {
-    if (a.direction === Direction.TO) {
+    } else {
       return (
         <div>
-          The nodes listed below have routes to the <b>{a.startKey}</b> node.
+          There are no nodes with routes to the <b>{a.startKey}</b> node.
+        </div>
+      )
+    }
+  } else {
+    if (a.isOutbound) {
+      return (
+        <div>
+          The <b>{a.startKey}</b> node has routes to the nodes listed below.
           Click on each node for more information.
         </div>
       )
     } else {
       return (
         <div>
-          The <b>{a.startKey}</b> node has routes to the nodes listed below.
+          The nodes listed below have routes to the <b>{a.startKey}</b> node.
           Click on each node for more information.
         </div>
       )
@@ -260,11 +274,11 @@ function renderRouteSelectors(a: AnalyzerPathProps, nodes: NodeSpec[]) {
       </span>
       <Dropdown>
         <Dropdown.Toggle variant="light" id="dropdown-basic">
-          {a.direction === Direction.TO ? 'To' : 'From'}
+          {a.isOutbound ? 'From': 'To'}
         </Dropdown.Toggle>
 
         <Dropdown.Menu>
-          <Dropdown.Item to={a.to()} as={Link}>To</Dropdown.Item>
+          <Dropdown.Item to={a.to().path()} as={Link}>To</Dropdown.Item>
           <Dropdown.Item to={a.from()} as={Link}>From</Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
@@ -376,9 +390,9 @@ function renderCycles(
     <div style={{ backgroundColor: 'lightpink' }}>
       <b>
         {
-          (a.direction === Direction.TO) ?
-            `Cycles to ${a.startKey}` :
-            `Cycles from ${a.startKey}`
+          a.isOutbound ?
+            `Cycles from ${a.startKey}` :
+            `Cycles to ${a.startKey}`
         }
       </b>
       <div>

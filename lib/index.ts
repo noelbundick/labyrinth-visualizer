@@ -1,2 +1,2 @@
-export * from './analyer-path-props';
+export * from './analyzer-path-props';
 export * from './world';

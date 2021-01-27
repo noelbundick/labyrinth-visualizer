@@ -21,7 +21,7 @@ class FrameBody extends React.Component<RouteComponentProps<any>> {
     let display = 'none';
     let path = 'config.yaml';
 
-    if (this.props.location.pathname === '/edit') {
+    if (this.props.location.pathname === '/network') {
       display = 'block';
     } else if (this.props.location.pathname === '/universe') {
       display = 'block';
@@ -47,7 +47,7 @@ class FrameBody extends React.Component<RouteComponentProps<any>> {
           />
           <Route path="/universe">
           </Route>
-          <Route path="/edit">
+          <Route path="/network">
           </Route>
           <Route exact path="/">
             <Welcome />

@@ -16,13 +16,13 @@ class NavBar extends React.Component<RouteComponentProps<any>> {
         {/* <div>You are now at {location.pathname}</div> */}
         <Nav variant="tabs" className="flex-row" activeKey={mode}>
           <Nav.Item>
-            <Nav.Link to='/' eventKey="" as={Link}>Home</Nav.Link>
+            <Nav.Link to='/' eventKey="" as={Link}>Welcome</Nav.Link>
           </Nav.Item>
           <Nav.Item>
             <Nav.Link to='/universe' eventKey="universe" as={Link}>Universe</Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link to='/edit' eventKey="edit" as={Link}>Configure</Nav.Link>
+            <Nav.Link to='/network' eventKey="network" as={Link}>Network</Nav.Link>
           </Nav.Item>
           <StatefulLink mode="analyze">Analyze</StatefulLink>
         </Nav>

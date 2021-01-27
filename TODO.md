@@ -1,6 +1,18 @@
 # TODO List
 
 * Top
+  * AnalyzerPathProps
+    * http://localhost:3000/analyze/foo/gateway/router should not throw
+      * Need some sort of notion of a valid path
+      * Perhaps a path error message field
+      * Errors:
+        * Bad direction
+        * Bad start
+        * Bad end
+    * x Fix spelling error in file name
+    * x .isOutbound() method
+    * Parse filter parameters
+    * Path generator functions (e.g. .to()) should return new object.
   * If cycle rendering includes all nodes from start, the cycle will be the same as one of the paths
     * Consider putting red cycle marker on paths with cycles.
     * ImLoop2
