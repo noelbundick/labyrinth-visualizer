@@ -1,12 +1,20 @@
 # TODO List
 
 * Top
-  * AnalyzerPathProps.isOutbound()
+  * If cycle rendering includes all nodes from start, the cycle will be the same as one of the paths
+    * Consider putting red cycle marker on paths with cycles.
+    * ImLoop2
+    * MdLoop
+    * GrCycle
+    * GrPowerCycle
+  * AnalyzerPathProps.isOutbound() - reduces code duplication
   * Detect unreachable nodes/partitions
-  * Arrows on cycles may be going in the wrong direction
-  * Consider whether to sort node alphabetically
-  * Consider endpoint icon for nodes
-  * path accordian to show routes
+    * This seems like a global operation, requiring propagation from all nodes.
+    * Similar to detecting all cycles in the graph (vs those on path from node x)
+  * x Arrows on cycles may be going in the wrong direction.
+  * Consider whether to sort nodes alphabetically
+  * x Consider endpoint icon for nodes
+  * . path accordian to show routes. May just want to always render routes.
   * cycles:
     * http://localhost:3000/analyze/from/server2/subnet2
   * svg network diagram for demo
@@ -18,6 +26,16 @@
     * x utilities/yaml_validation_error
   * x Editor buffer persistance across navigation
   * Filters
+    * http://localhost:3000/analyze/from/subnet1/subnet1?destinationIp=10.0.0.0/8&protocol=tcp&unknown=5
+    * The url
+      * http://localhost:3000/analyze/from/internet/subnet2?path=gateway
+    * means to filter with the routes from 
+      * http://localhost:3000/analyze/from/internet/gateway
+    * when rendering
+      * http://localhost:3000/analyze/from/internet/subnet2
+    * Seems like this might require two graph propagations.
+    * Consider, perhaps, a sub-detail pane.
+    * http://localhost:3000/analyze/from/internet?destinationIp=except 10.0.0.0/8
   * Bug: editor analyze button enabled on startup - should be disabled
   * Reduce console spew
   * Rename editor2.tsx

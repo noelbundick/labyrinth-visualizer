@@ -2,7 +2,11 @@
 #   Case http://localhost:3000/analyze/from/gateway/gateway
 #   gives (universe), but would expect destination ip: 10.1.1.1
 #   Think this might have to do with propagation starting with
-#   (universe)
+#   (universe). This is clearly a bug.
+#
+#   Case http://localhost:3000/analyze/from/subnet1/subnet1
+#   has no routes. This seems reasonable since there is no cycle
+#   passing through subnet1.
 #
 #   Case http://localhost:3000/analyze/from/internet/
 #   gives no routes, which seems correct.
@@ -21,8 +25,9 @@
 - name: router
   key: router
   rules:
-    - destination: server1
-      destinationIp: 10.0.0.1
+    # Demo step 1: second route to server1
+    # - destination: server1
+    #   destinationIp: 10.0.0.1
     - destination: subnet1
       destinationIp: 10.0.0.0/16
     - destination: subnet2
@@ -43,9 +48,9 @@
 - name: subnet2
   key: subnet2
   rules:
-    # Route to gateway should cause a cycle
-    - destination: gateway
-      destinationIp: 10.1.1.1
+    # Demo step 2: route to gateway introduces a cycle
+    # - destination: gateway
+    #   destinationIp: 10.1.1.1
     - destination: router
       destinationIp: except 10.1.0.0/16
     - destination: server2
@@ -55,13 +60,13 @@
   rules:
     - destination: subnet2
       destinationIp: except loopback
-# router3 is not reachable from any other node
-- name: router3
-  key: router3
-  rules:
-    - destination: server3
-      protocol: tcp
-- name: server3
-  key: server3
-  endpoint: true
-  rules: []
+# Demo step 3: router3 is not reachable from any other node
+# - name: router3
+#   key: router3
+#   rules:
+#     - destination: server3
+#       protocol: tcp
+# - name: server3
+#   key: server3
+#   endpoint: true
+#   rules: []

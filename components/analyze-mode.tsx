@@ -4,9 +4,13 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import Nav from 'react-bootstrap/Nav';
 import {GoArrowRight} from 'react-icons/go';
 import {GrNetwork, GrServer} from 'react-icons/gr';
+import {ImCheckboxChecked} from 'react-icons/im';
 import {connect} from 'react-redux'
 import {RouteComponentProps, withRouter} from "react-router";
 import {Link, Redirect} from 'react-router-dom';
+// import { URLSearchParams } from "url"
+// import url from 'url';
+// const url = require('url');
 
 import {AnalyzerPathProps, Direction, World} from '../lib';
 import {ApplicationState} from '../redux';
@@ -59,6 +63,11 @@ class AnalyzeMode extends React.Component<Props> {
     if (!nodes.find(node => node.key === a.startKey)) {
       return this.renderUnknownNodeError(a, nodes);
     } else {
+      // TODO: extract filter params here.
+      // Handle bad filter error.
+      // Analyze graph here.
+      // Handle analysis failure here.
+      // Move graph analysis and filtering code to lib.
       return this.renderValidPage(a, nodes, graph);
     }
   }
@@ -74,6 +83,7 @@ class AnalyzeMode extends React.Component<Props> {
 
   renderValidPage(a: AnalyzerPathProps, nodes: NodeSpec[], graph: Graph) {
     // TODO: cache this computation. Only recompute if inputs change.
+    // TODO: surround with try/catch block
     const { cycles, flows } = graph.analyze(a.startKey, a.direction === Direction.FROM);
 
     // Only render flows for reachable nodes.
@@ -83,8 +93,9 @@ class AnalyzeMode extends React.Component<Props> {
 
     return (
       <div>
-        { renderRouteSelectors(a, nodes)}
-        { renderExpanation(a, filteredFlows)}
+        {renderRouteSelectors(a, nodes)}
+        {renderFilters(a, this.props.location.search)}
+        {renderExpanation(a, filteredFlows)}
 
         <div
           style={{
@@ -275,12 +286,44 @@ function renderRouteSelectors(a: AnalyzerPathProps, nodes: NodeSpec[]) {
   );
 }
 
+function renderFilters(a: AnalyzerPathProps, query: string) {
+  // const x = new url.URLSearchParams(query);
+
+  const params = [...new URLSearchParams(query).entries()];
+  // let count = 0;
+  // const result: {[others: string]: string} = {};
+  // for(const [key, value] of params) {
+  //   result[key] = value;
+  //   count++;
+  // }
+
+  if (params.length === 0) {
+    return null;
+  } else {
+    return (
+      <div>
+        <div style={{fontSize: '15pt'}}>
+          Filters
+        </div>
+          {params.map(([key,value]) => (
+            <div style={{marginLeft: '2ex'}}>
+              <ImCheckboxChecked/>
+              <b>{key}:</b>
+              {value}
+            </div>
+          ))}
+      </div>
+    )
+  }
+}
+
 function renderPath(
   a: AnalyzerPathProps,
   graph: Graph,
   path: Path,
   outbound: boolean
 ) {
+  // TODO: figure out this case.
   // if (path.routes.isEmpty()) {
   //   return null;
   // }
@@ -362,11 +405,11 @@ function renderOneCycle(
 
   if (outbound) {
     for (const p of cycle) {
-      keys.unshift(graph.nodes[p.node].key);
+      keys.push(graph.nodes[p.node].key);
     }
   } else {
     for (const p of cycle) {
-      keys.push(graph.nodes[p.node].key);
+      keys.unshift(graph.nodes[p.node].key);
     }
   }
 
