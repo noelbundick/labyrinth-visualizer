@@ -1,0 +1,494 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmPassword": {
+      "type": "securestring",
+      "defaultValue": "[guid(resourceGroup().id)]"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "storageAccount": "[concat('labyrinth', variables('suffix'))]",
+    "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]"
+  },
+  "resources": [
+    {
+      "name": "jumpbox",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "Static"
+      }
+    },
+    {
+      "name": "frontend",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "Static"
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'frontend')]"
+      ],
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "jumpboxNSG",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "allow_ssh",
+            "properties": {
+              "direction": "Inbound",
+              "priority": 1000,
+              "access": "Allow",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "Internet",
+              "destinationPortRange": "22",
+              "destinationAddressPrefix": "*"
+            }
+          },
+          {
+            "name": "allow_https",
+            "properties": {
+              "direction": "Inbound",
+              "priority": 1100,
+              "access": "Allow",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "Internet",
+              "destinationPortRange": "443",
+              "destinationAddressPrefix": "*"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "frontendNSG",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "allow_http",
+            "properties": {
+              "direction": "Inbound",
+              "priority": 1000,
+              "access": "Allow",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "Internet",
+              "destinationPortRange": "80",
+              "destinationAddressPrefix": "*"
+            }
+          },
+          {
+            "name": "allow_https",
+            "properties": {
+              "direction": "Inbound",
+              "priority": 1100,
+              "access": "Allow",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "Internet",
+              "destinationPortRange": "443",
+              "destinationAddressPrefix": "*"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "backendNSG",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "allow_jumpbox",
+            "properties": {
+              "direction": "Inbound",
+              "priority": 1000,
+              "access": "Allow",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "10.0.0.0/25",
+              "destinationPortRange": "443",
+              "destinationAddressPrefix": "*"
+            }
+          },
+          {
+            "name": "allow_frontend",
+            "properties": {
+              "direction": "Inbound",
+              "priority": 1100,
+              "access": "Allow",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "10.0.0.128/25",
+              "destinationPortRange": "443",
+              "destinationAddressPrefix": "*"
+            }
+          },
+          {
+            "name": "block_outbound",
+            "properties": {
+              "direction": "Outbound",
+              "priority": 1000,
+              "access": "Deny",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationPortRange": "*",
+              "destinationAddressPrefix": "Internet"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'frontendNSG')]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'backendNSG')]"
+      ],
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "vnet",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/23"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "jumpboxSubnet",
+            "properties": {
+              "addressPrefix": "10.0.0.0/25",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'jumpboxNSG')]"
+              }
+            }
+          },
+          {
+            "name": "frontendSubnet",
+            "properties": {
+              "addressPrefix": "10.0.0.128/25",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'frontendNSG')]"
+              }
+            }
+          },
+          {
+            "name": "backendSubnet",
+            "properties": {
+              "addressPrefix": "10.0.1.0/24",
+              "privateEndpointNetworkPolicies": "Disabled",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'backendNSG')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2018-09-01",
+      "location": "global",
+      "name": "privatelink.blob.core.windows.net",
+      "properties": {},
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.blob.core.windows.net')]"
+          ],
+          "type": "SOA",
+          "apiVersion": "2018-09-01",
+          "name": "@",
+          "properties": {
+            "ttl": 3600,
+            "soaRecord": {
+              "email": "azureprivatedns-host.microsoft.com",
+              "expireTime": 2419200,
+              "host": "azureprivatedns.net",
+              "refreshTime": 3600,
+              "retryTime": 300,
+              "serialNumber": 1,
+              "minimumTtl": 300
+            }
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.blob.core.windows.net')]",
+            "[resourceId('Microsoft.Network/virtualNetworks', 'vnet')]"
+          ],
+          "type": "virtualNetworkLinks",
+          "apiVersion": "2018-09-01",
+          "location": "global",
+          "name": "vnet",
+          "properties": {
+            "registrationEnabled": false,
+            "virtualNetwork": {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks', 'vnet')]",
+              "resourceGroup": "[resourceGroup().name]"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('storageAccount')]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "properties": {
+        "supportsHttpsTrafficOnly": true,
+        "networkAcls": {
+          "defaultAction": "Deny"
+        }
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]"
+          ],
+          "type": "blobServices/containers",
+          "apiVersion": "2019-06-01",
+          "name": "default/testdata",
+          "properties": {
+            "publicAccess": "None"
+          }
+        }
+      ]
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'vnet')]"
+      ],
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "data",
+      "properties": {
+        "privateLinkServiceConnections": [
+          {
+            "name": "[concat(variables('storageAccount'), '-blob')]",
+            "properties": {
+              "groupIds": [
+                "blob"
+              ],
+              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]"
+            }
+          }
+        ],
+        "subnet": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet', 'backendSubnet')]"
+        }
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Network/privateEndpoints', 'data')]"
+          ],
+          "type": "privateDnsZoneGroups",
+          "apiVersion": "2020-05-01",
+          "location": "[resourceGroup().location]",
+          "name": "default",
+          "properties": {
+            "privateDnsZoneConfigs": [
+              {
+                "name": "default",
+                "properties": {
+                  "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.blob.core.windows.net')]"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'vnet')]"
+      ],
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "jumpbox",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "default",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'jumpbox')]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet', 'jumpboxSubnet')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', 'jumpbox')]"
+      ],
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "name": "jumpbox",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B1s"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'jumpbox')]"
+            }
+          ]
+        },
+        "osProfile": {
+          "adminUsername": "azureuser",
+          "adminPassword": "[parameters('vmPassword')]",
+          "computerName": "jumpbox"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          }
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', 'jumpbox')]"
+      ],
+      "type": "Microsoft.DevTestLab/schedules",
+      "apiVersion": "2018-09-15",
+      "location": "[resourceGroup().location]",
+      "name": "shutdown-computevm-jumpbox",
+      "properties": {
+        "status": "Enabled",
+        "dailyRecurrence": {
+          "time": "0200"
+        },
+        "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', 'jumpbox')]",
+        "taskType": "ComputeVmShutdownTask",
+        "timeZoneId": "UTC"
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'vnet')]"
+      ],
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "frontend",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "default",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'frontend')]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet', 'frontendSubnet')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', 'frontend')]"
+      ],
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "name": "frontend",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B1s"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'frontend')]"
+            }
+          ]
+        },
+        "osProfile": {
+          "adminUsername": "azureuser",
+          "adminPassword": "[parameters('vmPassword')]",
+          "computerName": "frontend"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          }
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', 'frontend')]"
+      ],
+      "type": "Microsoft.DevTestLab/schedules",
+      "apiVersion": "2018-09-15",
+      "location": "[resourceGroup().location]",
+      "name": "shutdown-computevm-frontend",
+      "properties": {
+        "status": "Enabled",
+        "dailyRecurrence": {
+          "time": "0200"
+        },
+        "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', 'frontend')]",
+        "taskType": "ComputeVmShutdownTask",
+        "timeZoneId": "UTC"
+      }
+    }
+  ],
+  "outputs": {
+  }
+}
